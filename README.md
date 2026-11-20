@@ -91,9 +91,12 @@ Summarised from `BRIEF.md`, but read that file in full:
 | Name | GitHub | Owns |
 |------|--------|------|
 | Aaden Yick | [@luminaryshadows](https://github.com/luminaryshadows) | TBD |
-| Alastair | TBD | TBD |
-| Oscar | TBD | TBD |
-| Yigit Gumus | TBD | TBD |
+| Alastair | [@alastairchupy](https://github.com/alastairchupy) | TBD |
+| Oscar | _handle pending_ | TBD |
+| Yigit Gumus | [@yg-gms](https://github.com/yg-gms) | TBD |
+
+Everyone above has write access to this repo — accept the invitation in your GitHub
+notifications if you have not already. Ownership gets filled in once the mechanism is chosen.
 
 ---
 
