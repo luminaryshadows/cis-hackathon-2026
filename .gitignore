@@ -1,0 +1,29 @@
+# macOS junk
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# node / build (only if we ever add a build step)
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# env and secrets — never commit
+.env
+.env.*
+*.pem
+*.key
+
+# local scratch
+tmp/
+scratch/
+*.log
