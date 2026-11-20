@@ -90,10 +90,13 @@ Summarised from `BRIEF.md`, but read that file in full:
 
 | Name | GitHub | Owns |
 |------|--------|------|
-| Aaden Yick | [@luminaryshadows](https://github.com/luminaryshadows) | TBD |
+| Aaden | [@luminaryshadows](https://github.com/luminaryshadows) | TBD |
 | Alastair | [@alastairchupy](https://github.com/alastairchupy) | TBD |
 | Oscar | _handle pending_ | TBD |
-| Yigit Gumus | [@yg-gms](https://github.com/yg-gms) | TBD |
+| Yigit | [@yg-gms](https://github.com/yg-gms) | TBD |
+
+First names only, handles for identity — this page is public, and handles are already public.
+Full names belong on the submission form, not in a repo the whole internet can read.
 
 Everyone above has write access to this repo — accept the invitation in your GitHub
 notifications if you have not already. Ownership gets filled in once the mechanism is chosen.
