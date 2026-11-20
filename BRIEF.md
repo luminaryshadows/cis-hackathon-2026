@@ -90,4 +90,5 @@ Human judges score **the product, the code, and the interviews**. Above all they
 ## Deadline
 
 **25 November 2026, 23:59 Anywhere on Earth.** AoE is UTC-12, so the cutoff in Hong Kong
-(HKT, UTC+8) is **20:00 on 26 November**. Do not treat the 25th as local.
+(HKT, UTC+8) is **19:59 on Thursday 26 November** — six days, not seven. Do not treat the
+25th as local; that mistake costs a day the team does not have.
