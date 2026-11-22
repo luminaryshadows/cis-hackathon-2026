@@ -3,55 +3,94 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CIS Hackathon 2026 — building</title>
-<meta name="robots" content="noindex">
+<title>FeedLens — CIS Hackathon 2026</title>
+<meta name="description" content="FeedLens lets you train a simulated short-video feed and trace how a watch, like, dislike or skip changes your next recommendation.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#10022;</text></svg>">
 <style>
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
   body {
-    display: grid;
-    place-items: center;
+    margin: 0;
     background: #0b0d10;
     color: #e8eaed;
-    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    padding: 24px;
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-  main { max-width: 34rem; }
-  .dot {
-    display: inline-block;
-    width: .5rem; height: .5rem;
-    border-radius: 50%;
-    background: #f5a524;
-    margin-right: .5rem;
-    vertical-align: middle;
-    animation: pulse 2s ease-in-out infinite;
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 4rem 24px 5rem; }
+  .kicker {
+    font-size: .75rem; letter-spacing: .12em; text-transform: uppercase;
+    color: #6b7480; margin: 0 0 1.25rem;
   }
-  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .25 } }
-  h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -.01em; margin: 0 0 .75rem; }
-  p { margin: 0 0 1rem; color: #9aa3ad; }
-  code {
-    font: .85em ui-monospace, SFMono-Regular, Menlo, monospace;
-    background: #16191e; padding: .15em .4em; border-radius: 3px; color: #cbd2d9;
+  h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.1; letter-spacing: -.02em; margin: 0 0 1rem; font-weight: 650; }
+  h1 span { color: #f5a524; }
+  .lede { font-size: 1.125rem; color: #b6bec7; margin: 0 0 2rem; max-width: 38rem; }
+  .cta {
+    display: inline-block; margin: 0 0 3rem; padding: .85rem 1.5rem;
+    background: #f5a524; color: #0b0d10; font-weight: 650; font-size: 1rem;
+    border-radius: 8px; text-decoration: none;
   }
-  footer { margin-top: 2rem; font-size: .8rem; color: #5b636d; }
+  .cta:hover { background: #ffb63d; }
+  h2 {
+    font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+    color: #6b7480; font-weight: 600; margin: 2.5rem 0 .9rem;
+    padding-bottom: .5rem; border-bottom: 1px solid #1c2027;
+  }
+  ul { padding-left: 1.1rem; margin: 0; }
+  li { margin: 0 0 .6rem; color: #b6bec7; }
+  li strong { color: #e8eaed; font-weight: 600; }
+  .hook { font-size: 1rem; color: #b6bec7; margin: 0; max-width: 40rem; }
   a { color: #6ea8fe; }
+  .note {
+    margin: 2.5rem 0 0; padding: 1rem 1.15rem;
+    background: #12151a; border-left: 2px solid #2a3038; border-radius: 0 6px 6px 0;
+    font-size: .9rem; color: #98a1ab;
+  }
+  footer { margin-top: 3.5rem; font-size: .8rem; color: #5b636d; }
 </style>
 </head>
 <body>
-<main>
-  <h1><span class="dot"></span>This is a scaffold, not the project.</h1>
-  <p>
-    The page is live so the deploy pipeline is proven from day one. The mechanism
-    and the interface replace all of this once the idea is chosen.
+<div class="wrap">
+
+  <p class="kicker">CIS Hackathon 2026</p>
+  <h1>FeedLens<span>.</span></h1>
+  <p class="lede">
+    Train a simulated short-video feed and trace how a watch, like, dislike or skip changes what
+    you see next. No sign-in, nothing to install — the recommendation engine runs in your browser.
   </p>
-  <p>
-    Challenge rules and the chosen idea live in
-    <a href="https://github.com/luminaryshadows/cis-hackathon-2026">the repository</a>.
+
+  <a class="cta" href="https://yg-gms.github.io/feedlens-demo/">Open the live prototype &rarr;</a>
+
+  <h2>What you can do in it</h2>
+  <ul>
+    <li><strong>Your Feed</strong> — watch, like, dislike or skip, and see your interest profile and
+        the upcoming queue recompute from what you just did.</li>
+    <li><strong>Behind the Feed</strong> — pick any candidate and see its score split into interest
+        match, popularity, exploration and diversity, plus the exact action that earned its points.</li>
+    <li><strong>Algorithm Lab</strong> — test whether 11.4 seconds of watching can outvote a
+        dislike, how liking one topic entrenches it, and whether exploration breaks the loop.</li>
+    <li><strong>Time Machine</strong> — change one past reaction, replay both histories, and compare
+        where the ranking went differently.</li>
+  </ul>
+
+  <h2>The question underneath it</h2>
+  <p class="hook">
+    Can watching a post long enough raise your interest in its topic even after you tap Dislike?
+    A dislike costs 4 points, a second of watch earns 0.35 — so past 11.4 seconds, it does.
+    FeedLens computes that for you instead of telling you.
   </p>
+
+  <div class="note">
+    This repository holds the submission material: the <a href="BRIEF.md">brief</a>,
+    <a href="docs/ALGORITHM.md">algorithm specification</a>,
+    <a href="docs/PROTOTYPE.md">code map</a> and <a href="docs/ROADMAP.md">roadmap</a>.
+    The prototype source lives in
+    <a href="https://github.com/yg-gms/feedlens-demo">yg-gms/feedlens-demo</a>.
+  </div>
+
   <footer>
-    CIS Hackathon 2026 · submissions close 25 November 2026, 23:59 AoE
+    Submissions close 25 November 2026, 23:59 AoE &middot; built by Aaden, Alastair, Oscar and Yigit
   </footer>
-</main>
+
+</div>
 </body>
 </html>
