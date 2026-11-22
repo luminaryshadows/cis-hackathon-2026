@@ -105,7 +105,7 @@ See the [challenge brief](BRIEF.md) for the full rules.
 |------|--------|------|
 | Aaden | [@luminaryshadows](https://github.com/luminaryshadows) | TBD |
 | Alastair | [@alastairchupy](https://github.com/alastairchupy) | TBD |
-| Oscar | _handle pending_ | TBD |
+| Oscar | [@lojekoscar-web](https://github.com/lojekoscar-web) | TBD |
 | Yigit | [@yg-gms](https://github.com/yg-gms) | TBD |
 
 First names only, handles for identity — this page is public, and handles are already public.
