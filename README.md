@@ -1,88 +1,101 @@
 # CIS Hackathon 2026 — Team Entry
 
-Interactive web project for the **CIS Hackathon**, released 19 November 2026.
+**FeedLens** is an interactive web project for the **CIS Hackathon**, released 19 November 2026.
 Submissions close **25 November 2026, 23:59 AoE**.
 
-> **Status: scaffold.** The technology and mechanism have not been chosen yet.
-> This repo exists so the team has one place for the brief, the plan and the code.
-> Replace this banner once the idea is locked in — see `TASKS.md`.
+> **Status: working prototype in a separate checkout.** The FeedLens prototype contains four connected sections and a browser-based recommendation engine. This repository currently contains the submission scaffold.
 
 ---
 
 ## The one-sentence pitch
 
-_Pick a technology people use every day without knowing how it works. Pick the one mechanism
-inside it that does the work. Build it, make it interactive, and let a first-time user
-understand it in under two minutes without any help._
-
-<!-- Replace with our chosen technology + mechanism. Keep it to one sentence. -->
+FeedLens lets you train a simulated short-video feed and trace how a watch, like, dislike, or skip changes your next recommendation.
 
 ---
 
 ## What this project is
 
-_(fill in once the idea is chosen)_
+Recommendation feeds make it easy to react to a post and hard to see what the system learns from that reaction. FeedLens makes the feedback loop visible so a first-time user can explain, within two minutes, how their actions affect what they see next.
 
-- **Technology:** TBD
-- **Mechanism we are exposing:** TBD
-- **What the user changes:** TBD
-- **What they see change:** TBD
-- **The thing they had not thought to ask about:** TBD
+- **Technology:** Personalized short-video feeds.
+- **Mechanism we are exposing:** A ranking engine that learns topic weights from your actions and scores unseen posts.
+- **What the user changes:** Watch time, reactions, skips, and sliders that control learning and ranking.
+- **What they see change:** An interactive interest constellation or bar chart, the upcoming queue, and each post's score breakdown.
+- **The thing they had not thought to ask about:** Can watching a post long enough raise interest in its topic even after you tap Dislike?
+
+**Implemented in the separate FeedLens prototype**
+
+- **Interactive Feed (Your Feed)** — Watch, like, dislike, or skip simulated posts and see the interest profile and upcoming queue update.
+- **Algorithm X-Ray (Behind the Feed)** — Inspect a candidate's score, see its strongest contributing action, and adjust ranking weights.
+- **Time Machine** — Change or remove a past interaction in a saved branch and compare interest weights and upcoming rankings with the original.
+- **Experiment Lab (Algorithm Lab)** — Predict and test whether watch time can outweigh a dislike, how gaming likes create a feedback loop, and how exploration or diversity can change the top pick.
+
+The opening prompt and **How it works** dialog give users a short guided start. A step-by-step onboarding walkthrough, animated history replay, and side-by-side algorithm comparisons are planned. See the [roadmap](docs/ROADMAP.md) and [algorithm guide](docs/ALGORITHM.md).
 
 ---
 
 ## Live link
 
-Judges open this **before anything else**, with nobody from the team present.
-Everything needed to understand the project must live in the page itself.
+Judges open this **before anything else**, so the public demo must explain itself without help from the team.
 
 ```
 https://luminaryshadows.github.io/cis-hackathon-2026/
 ```
 
-_Live from the first commit, so the deploy pipeline is proven early rather than at 23:00 on the last night._
+This is the Pages URL from the hackathon scaffold. This checkout still contains the placeholder page. Publishing a public FeedLens build is tracked in the [roadmap](docs/ROADMAP.md).
 
 ---
 
 ## Running locally
 
-No build step. No dependencies. Open the file, or serve the folder:
+To preview this checkout's placeholder page, run:
 
 ```bash
 python3 -m http.server 8000
-# then visit http://localhost:8000
 ```
 
-Deployment is GitHub Pages on `main` — push to `main` and the live link updates.
+Open http://localhost:8000. This checkout uses GitHub Pages on `main`.
+
+To run the FeedLens prototype, use Node.js 22.12 or later and npm. From the separate prototype checkout containing `package.json`, run:
+
+```bash
+npm ci
+npm run dev
+# Open the URL printed by Vite, typically http://localhost:5173
+```
+
+Like the opening post and inspect **Up next**, then select a recommendation to open its score breakdown. Use **Reset session** to start again with a neutral profile and default settings.
+
+Run `npm test` for the model tests and `npm run build` to produce the static site in `dist/`. Run `npm run build:portable` to write a standalone `FeedLens.html` one directory above the source.
 
 ---
 
 ## Repo layout
 
 ```
-index.html      the thing judges open. everything user-facing starts here
-BRIEF.md        the challenge rules, kept in-repo so we stop re-reading email
-TASKS.md        who is doing what, and what "done" means
-src/            the mechanism itself — the computation we are explaining
-docs/           notes, research, the "why we chose it" reasoning
+index.html          placeholder page for GitHub Pages
+BRIEF.md            challenge rules and submission deadline
+TASKS.md            original team checklist
+src/README.md       notes on the planned source layout
+docs/CREDITS.md     third-party credits template
+docs/ROADMAP.md     milestone checklist and demo criteria
+docs/ALGORITHM.md   scoring, learning, and simulation limits
 ```
+
+The separate prototype checkout contains the engine and UI in `src/`, the artwork in `public/art/`, and automated tests in `tests/`.
 
 ---
 
 ## Hard rules we must not break
 
-Summarised from `BRIEF.md`, but read that file in full:
+See the [challenge brief](BRIEF.md) for the full rules.
 
-1. **Public link, no sign-in, no download, no API key.** Must stay online until judging ends.
-2. **Interactive.** The user changes something and the project responds. No videos, no slideshows,
-   no walls of text standing in for the project.
-3. **Outputs are computed, not replayed.** Simulations are fine if they actually compute.
-   Pre-recorded animations and canned results are not.
-4. **The mechanism runs in our own code.** Hosted AI is allowed elsewhere in the project,
-   but never for the part we are explaining.
-5. **Two minutes, no help.** A first-time user must get the idea within two minutes.
-   Depth can go as far as we like after that.
-6. **We must be able to explain every line we wrote**, and justify every component we did not.
+1. **Public link, no sign-in, no download, no API key.** Keep the demo online until judging ends.
+2. **Interactive.** The user changes an input and sees the project respond.
+3. **Computed outputs.** The recommendations and experiment outcomes come from the user's inputs.
+4. **Our own mechanism.** The recommendation engine runs in our own code in the browser.
+5. **Two minutes, no help.** A first-time user should understand the main idea within two minutes.
+6. **Explain every line we wrote** and justify the third-party components we chose.
 
 ---
 
