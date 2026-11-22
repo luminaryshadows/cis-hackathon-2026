@@ -219,8 +219,8 @@ See [BRIEF.md](BRIEF.md) for the full rules.
 | Name | GitHub | Owns |
 |------|--------|------|
 | Aaden | [@luminaryshadows](https://github.com/luminaryshadows) | submission, deployment, documentation |
-| Alastair | [@alastairchupy](https://github.com/alastairchupy) | TBD |
-| Oscar | [@lojekoscar-web](https://github.com/lojekoscar-web) | TBD |
+| Alastair | [@alastairchupy](https://github.com/alastairchupy) | demo — video, project page, two-minute walkthrough |
+| Oscar | [@lojekoscar-web](https://github.com/lojekoscar-web) | implementation, tests, browser and keyboard support |
 | Yigit | [@yg-gms](https://github.com/yg-gms) | engine, UI, algorithm spec |
 
 First names only, handles for identity — this page is public, and handles are already public.
