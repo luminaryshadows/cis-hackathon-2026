@@ -7,7 +7,9 @@ The `feedlens-demo` branch contains the working app in [FeedLens](FeedLens/) and
 
 ## Try the branch demo
 
-A visitor opens one experiment on a simulated feed. A Gaming post already has a dislike. Tap **Watch all 12 s**, or drag **Watch time** to try a shorter watch. The phone turns and the feed recalculates the topic weight and next recommendation. At 12 seconds the watch contributes 4.2 points. After the dislike subtracts 4, the Gaming signal is still positive.
+Scroll past the phone to add up to 12 seconds of watch time, or set **Watch time** yourself to keep a chosen duration. Follow the points from one disliked gaming post through **Signals**, **Learning**, **Scoring** and **Ranking**. A full watch adds 4.2 points. The dislike subtracts 4, leaving Gaming at +0.2. Each chapter uses the same ranking engine as the simulator.
+
+Choose **Instagram** to compare the accounts in your own viewing history with the accounts whose posts you liked or saved. **Try example data** runs the same analysis with a fictional export. To use your own, request a JSON export from Instagram and choose its ZIP, all ZIP parts together, or the extracted activity files. The report runs entirely in the tab. It shows counts, dates and the most frequent named accounts for the activity Instagram included. The files do not contain the original ranking scores. [Instagram export instructions](https://help.instagram.com/181231772500920)
 
 **Explore feed** opens the full workspace with that watch and dislike already in its history. The original feed, X-Ray, experiments and Time Machine also have direct links at `#feed`, `#behind`, `#lab` and `#history`.
 
@@ -120,8 +122,7 @@ outcome and every score breakdown.
 
 Judges and interviews will probe this, so it is written down rather than discovered.
 
-- The catalog of 32 posts, their topics and their discovery values are fixed by hand. There is no
-  real content, no real users and no real engagement data.
+- The simulator uses a hand-built catalog of 32 posts, topics and discovery values. Its scores come from the visitor’s simulated actions. The optional Instagram report uses only the activity files the visitor selects and never changes the simulator’s history.
 - Weights accumulate and never decay, so a long history can outweigh recent actions. The original
   projection with a decay term is P2 on the roadmap.
 - Session history and Time Machine branches live in browser memory; a reload clears them.
@@ -155,7 +156,7 @@ npm audit --audit-level=low
 npm run build:portable
 ```
 
-The browser test builds the production site in `FeedLens/dist/`. The portable build writes `FeedLens.html` at the repository root.
+The browser tests build and exercise both the production site in `FeedLens/dist/` and the standalone `FeedLens.html` at the repository root, including importing a ZIP offline.
 
 ---
 

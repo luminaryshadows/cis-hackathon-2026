@@ -6,13 +6,13 @@ const dataURL = async (path,type) => 'data:'+type+';base64,'+(await readFile(pat
 const covers = Object.fromEntries(await Promise.all(posts.map(async post =>
   [post.id,await dataURL('public/art/'+post.id+'.webp','image/webp')])))
 const logo = await dataURL('public/lens.svg','image/svg+xml')
-const fontLicenses = await Promise.all(['dm-sans', 'stix-two'].map(name =>
+const notices = await Promise.all(['dm-sans', 'stix-two', 'zip-js'].map(name =>
   readFile('public/licenses/'+name+'.txt','utf8')))
 const {output} = await build({publicDir:false,define:{__INLINE_COVERS__:JSON.stringify(covers)},
   build:{assetsInlineLimit:()=>true,write:false,cssCodeSplit:false,modulePreload:false}})
 const script = output.find(item=>item.type==='chunk' && item.isEntry).code
 const css = output.find(item=>item.type==='asset' && item.fileName.endsWith('.css')).source
 const html = (await readFile('index.html','utf8')).replace('href="/lens.svg"','href="'+logo+'"')
-  .replace('</head>',()=>'<style>'+css+'</style><script type="text/plain" id="font-licenses">'+fontLicenses.join('\n\n')+'</script></head>')
+  .replace('</head>',()=>'<style>'+css+'</style><script type="text/plain" id="license-notices">'+notices.join('\n\n')+'</script></head>')
   .replace('<script type="module" src="/src/main.tsx"></script>',()=>'<script type="module">'+script.replaceAll('</script','<\\/script')+'</script>')
 await writeFile('../FeedLens.html',html)

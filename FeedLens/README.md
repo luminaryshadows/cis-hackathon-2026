@@ -3,7 +3,7 @@
 **FeedLens** is an interactive web project for the **CIS Hackathon**, released 19 November 2026.
 Submissions close **25 November 2026, 23:59 AoE**.
 
-> **Status: working prototype.** FeedLens has four connected sections and a browser-based recommendation engine.
+FeedLens opens with the team’s animated phone, a scroll-through ranking experiment and a private Instagram activity analyzer.
 
 ---
 
@@ -30,7 +30,7 @@ Recommendation feeds make it easy to react to a post and hard to see what the sy
 - **Time Machine** — Change or remove a past interaction in a saved branch and compare interest weights and upcoming rankings with the original.
 - **Experiment Lab (Algorithm Lab)** — Predict and test whether watch time can outweigh a dislike, how gaming likes create a feedback loop, and how exploration or diversity can change the top pick.
 
-The opening prompt and **How it works** dialog give users a short guided start. A step-by-step onboarding walkthrough, animated history replay, and side-by-side algorithm comparisons are planned. See the [roadmap](docs/ROADMAP.md) and [algorithm guide](docs/ALGORITHM.md).
+On the opening page, scroll from one watch and dislike through the learned weights, candidate scores and resulting ranking. The optional **Instagram** section reads an export on the device and compares viewing with likes and saves. See the [algorithm guide](docs/ALGORITHM.md).
 
 ---
 
@@ -51,6 +51,8 @@ npm run dev
 ```
 
 On the opening phone experiment, change the watch duration and follow the effect on Gaming interest. Choose **Explore feed** to inspect that session in the full workspace. **Reset session** restores a neutral profile there.
+
+Open `#instagram` and choose **Try example data** for a fictional report, or **Choose Instagram export** for your own data. Select one or more Instagram ZIPs or extracted activity files (`posts_viewed.json`, `videos_watched.json`, `liked_posts.json` and `saved_posts.json`, including numbered parts). The analyzer reports each available category and counts repeated activities. Creator lists use only records that name a creator. Missing categories are marked **Not included**. Clearing the report or reloading the page releases the results. [Instagram’s export guide](https://help.instagram.com/181231772500920)
 
 Run `npm test` for the model tests and `npm run build` to produce the static site in `dist/`. Run `npm run build:portable` to write a standalone `FeedLens.html` one directory above the source.
 
@@ -96,4 +98,4 @@ The hackathon scaffold also includes the [challenge brief](https://github.com/lu
 
 ## Licence
 
-The hackathon scaffold specifies MIT for the team's own code. The third-party credits are pending.
+The hackathon scaffold specifies MIT for the team's own code. See the [third-party credits](../docs/CREDITS.md).

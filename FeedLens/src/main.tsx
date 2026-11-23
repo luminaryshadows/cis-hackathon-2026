@@ -6,6 +6,7 @@ import {currentPost, fresh, reaction, update} from './session'
 import type {Session} from './session'
 import {phoneSession} from './phoneSession'
 import {PhoneExperiment} from './PhoneExperiment'
+import {InstagramAnalyzer} from './InstagramAnalyzer'
 import {Icon} from './Icon'
 import {art} from './art'
 import {FeedControls, Lab} from './Lab'
@@ -145,37 +146,46 @@ function Workspace({initial}:{initial:Session}) {
       <p>Open <b>Algorithm Lab</b> to change how the feed learns and ranks. In <b>Time Machine</b>, branch from a past reaction to see how a different signal changes the rankings.</p></dialog>
   </>
 }
-const inWorkspace = () => sectionIds.includes(window.location.hash.slice(1))
+const locationSection = () => window.location.hash.slice(1)
 
 function App() {
-  const [showWorkspace, setShowWorkspace] = useState(inWorkspace)
-  const [initial, setInitial] = useState<Session | null>(() => inWorkspace() ? fresh() : null)
+  const [hash, setHash] = useState(locationSection)
+  const showWorkspace = sectionIds.includes(hash)
+  const [initial, setInitial] = useState<Session | null>(() => showWorkspace ? fresh() : null)
   const [visit, setVisit] = useState(0)
   useEffect(() => {
     const change = () => {
-      const open = inWorkspace()
-      if (open) setInitial(session => session ?? fresh())
-      setShowWorkspace(open)
+      const next = locationSection()
+      if (sectionIds.includes(next)) setInitial(session => session ?? fresh())
+      setHash(next)
     }
     window.addEventListener('hashchange', change)
     return () => window.removeEventListener('hashchange', change)
   }, [])
   const lastView = useRef(showWorkspace)
   useEffect(() => {
-    if (lastView.current === showWorkspace) return
+    const changedView = lastView.current !== showWorkspace
     lastView.current = showWorkspace
-    const page = document.getElementById(showWorkspace ? 'workspace' : 'experiment')
-    const title = page?.querySelector('h1')
-    if (title) { title.tabIndex = -1; title.focus({preventScroll: true}) }
-    window.scrollTo(0, 0)
-  }, [showWorkspace])
+    const anchor = !showWorkspace && hash ? document.getElementById(hash) : null
+    if (anchor?.closest('#experiment')) {
+      anchor.scrollIntoView({block: 'start'})
+      const heading = anchor.querySelector<HTMLElement>('h1, h2')
+      if (heading) { heading.tabIndex = -1; heading.focus({preventScroll: true}) }
+    } else if (changedView) {
+      const title = document.getElementById(showWorkspace ? 'workspace' : 'experiment')?.querySelector('h1')
+      if (title) { title.tabIndex = -1; title.focus({preventScroll: true}) }
+      window.scrollTo(0, 0)
+    }
+  }, [hash, showWorkspace])
   function explore(seconds:number) {
     setInitial(phoneSession(seconds))
     setVisit(value => value + 1)
     window.location.hash = 'feed'
   }
   return <>
-    <div id="experiment" hidden={showWorkspace}><PhoneExperiment onExplore={explore}/></div>
+    <div id="experiment" hidden={showWorkspace}>
+      <PhoneExperiment onExplore={explore}><InstagramAnalyzer/></PhoneExperiment>
+    </div>
     {initial && <div id="workspace" hidden={!showWorkspace}><Workspace key={visit} initial={initial}/></div>}
   </>
 }

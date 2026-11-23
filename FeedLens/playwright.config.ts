@@ -17,7 +17,7 @@ export default defineConfig({
     }},
   ],
   webServer: {
-    command: 'npm run build -- --base=./ && npm exec -- vite preview --host 127.0.0.1 --port 4173 --strictPort',
+    command: 'npm run build -- --base=./ && npm run build:portable && npm exec -- vite preview --host 127.0.0.1 --port 4173 --strictPort',
     url: origin,
   },
 })
