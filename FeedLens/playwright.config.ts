@@ -13,7 +13,7 @@ export default defineConfig({
   projects: [
     {name: 'desktop', use: {viewport: {width: 1280, height: 850}}},
     {name: 'mobile-reduced-motion', use: {
-      viewport: {width: 390, height: 844}, isMobile: true, hasTouch: true, reducedMotion: 'reduce',
+      viewport: {width: 360, height: 844}, isMobile: true, hasTouch: true, reducedMotion: 'reduce',
     }},
   ],
   webServer: {

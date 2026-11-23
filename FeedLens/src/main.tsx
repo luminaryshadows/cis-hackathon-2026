@@ -3,6 +3,9 @@ import {createRoot} from 'react-dom/client'
 import {posts, rank, replay} from './engine'
 import type {Post} from './engine'
 import {currentPost, fresh, reaction, update} from './session'
+import type {Session} from './session'
+import {phoneSession} from './phoneSession'
+import {PhoneExperiment} from './PhoneExperiment'
 import {Icon} from './Icon'
 import {art} from './art'
 import {FeedControls, Lab} from './Lab'
@@ -18,7 +21,7 @@ import './sections.css'
 const time = (seconds:number) => '0:'+String(seconds).padStart(2,'0')
 
 const sections = [
-  {name:'Your Feed', icon:'feed', subtitle:'Like the first post. Compare Before and After in Ranking replay, then choose “Why this winner?” to follow the score.'},
+  {name:'Your Feed', icon:'feed', subtitle:'Watch or react to a post to change what comes next.'},
   {name:'Behind the Feed', icon:'scan', subtitle:'Follow a signal from your history to the score that puts a post on top.'},
   {name:'Algorithm Lab', icon:'science', subtitle:'Make a prediction, change one variable, and see what the algorithm does.'},
   {name:'Time Machine', icon:'clock', subtitle:'Change one past interaction and compare the recommendations you get.'},
@@ -26,8 +29,8 @@ const sections = [
 const sectionIds = ['feed','behind','lab','history']
 const sectionFromHash = () => Math.max(0, sectionIds.indexOf(window.location.hash.slice(1)))
 
-function App() {
-  const [s,dispatch] = useReducer(update,undefined,fresh)
+function Workspace({initial}:{initial:Session}) {
+  const [s,dispatch] = useReducer(update,initial)
   const [sessionKey,setSessionKey] = useState(0)
   const [inspect,setInspect] = useState<string|null>(null)
   const [inspectionKey,setInspectionKey] = useState(0)
@@ -99,15 +102,14 @@ function App() {
     return ()=>animation.cancel()
   },[s.revision,s.signalTopics])
   return <>
-    <header className="top"><div className="top-inner"><div className="brand"><img src="./lens.svg" alt=""/>FeedLens</div>
+    <header className="top"><div className="top-inner"><a className="brand" href="#experiment" aria-label="Back to phone experiment">FeedLens</a>
       <nav className="sections-nav" aria-label="Explore FeedLens">{sections.map((item,i)=><a key={item.name} href={'#'+sectionIds[i]} aria-current={section===i?'page':undefined}
         onClick={e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();navigate(i)}}><Icon name={item.icon} size={16}/>{item.name}</a>)}</nav>
       <div className="nav"><button className="help" aria-label="How it works" title="How it works" onClick={()=>{dispatch({type:'pause'});dialog.current?.showModal()}}><Icon name="help" size={19}/></button>
       <button className="reset" onClick={reset}><Icon name="reset" size={16}/>Reset<span className="wide"> session</span></button></div></div></header>
     <main key={sessionKey}><section className={'intro intro-'+section} key={section}><div>
-      <h1 ref={heading} tabIndex={-1}>{sections[section].name}<span className="twinkle" aria-hidden="true">✦</span></h1>
+      <h1 ref={heading} tabIndex={-1}>{sections[section].name}</h1>
       <p>{sections[section].subtitle}</p></div>
-      <div className="section-stamp" aria-hidden="true"><Icon name={sections[section].icon} size={48}/></div>
       </section>
       <div hidden={section!==0}><div className="layout"><section className="left" aria-label="Feed">
         <article className="feed panel"><div className="feed-heading"><h2><span className="heading-icon lilac"><Icon name="feed" size={19}/></span>Now showing</h2>
@@ -143,4 +145,39 @@ function App() {
       <p>Open <b>Algorithm Lab</b> to change how the feed learns and ranks. In <b>Time Machine</b>, branch from a past reaction to see how a different signal changes the rankings.</p></dialog>
   </>
 }
+const inWorkspace = () => sectionIds.includes(window.location.hash.slice(1))
+
+function App() {
+  const [showWorkspace, setShowWorkspace] = useState(inWorkspace)
+  const [initial, setInitial] = useState<Session | null>(() => inWorkspace() ? fresh() : null)
+  const [visit, setVisit] = useState(0)
+  useEffect(() => {
+    const change = () => {
+      const open = inWorkspace()
+      if (open) setInitial(session => session ?? fresh())
+      setShowWorkspace(open)
+    }
+    window.addEventListener('hashchange', change)
+    return () => window.removeEventListener('hashchange', change)
+  }, [])
+  const lastView = useRef(showWorkspace)
+  useEffect(() => {
+    if (lastView.current === showWorkspace) return
+    lastView.current = showWorkspace
+    const page = document.getElementById(showWorkspace ? 'workspace' : 'experiment')
+    const title = page?.querySelector('h1')
+    if (title) { title.tabIndex = -1; title.focus({preventScroll: true}) }
+    window.scrollTo(0, 0)
+  }, [showWorkspace])
+  function explore(seconds:number) {
+    setInitial(phoneSession(seconds))
+    setVisit(value => value + 1)
+    window.location.hash = 'feed'
+  }
+  return <>
+    <div id="experiment" hidden={showWorkspace}><PhoneExperiment onExplore={explore}/></div>
+    {initial && <div id="workspace" hidden={!showWorkspace}><Workspace key={visit} initial={initial}/></div>}
+  </>
+}
+
 createRoot(document.getElementById('root')!).render(<App/>)

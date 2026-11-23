@@ -7,9 +7,9 @@ The `feedlens-demo` branch contains the working app in [FeedLens](FeedLens/) and
 
 ## Try the branch demo
 
-Like the opening Gaming post. In **Ranking replay**, switch between **Before** and **After** to see which post took first place and how its score changed. Inspect the winner to see which topic tags earned those points.
+A visitor opens one experiment on a simulated feed. A Gaming post already has a dislike. Tap **Watch all 12 s**, or drag **Watch time** to try a shorter watch. The phone turns and the feed recalculates the topic weight and next recommendation. At 12 seconds the watch contributes 4.2 points. After the dislike subtracts 4, the Gaming signal is still positive.
 
-For a second experiment, reset the session, watch the opening post for all 12 seconds and tap **Dislike**. The feed shows how much each signal contributed to Gaming. Try the same reaction after a shorter watch.
+**Explore feed** opens the full workspace with that watch and dislike already in its history. The original feed, X-Ray, experiments and Time Machine also have direct links at `#feed`, `#behind`, `#lab` and `#history`.
 
 Run the branch locally with the commands below, or download **FeedLens-preview** from a successful [branch check](https://github.com/luminaryshadows/cis-hackathon-2026/actions/workflows/feedlens.yml?query=branch%3Afeedlens-demo), unzip it and open `FeedLens.html`. The [original public prototype](https://yg-gms.github.io/feedlens-demo/) is the earlier build.
 

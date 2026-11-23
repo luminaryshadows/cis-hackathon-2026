@@ -28,7 +28,7 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
       problems.push('Unexpected external request: ' + r.url())
     }
   })
-  await page.goto('/')
+  await page.goto('/#feed')
   const panel = page.getByRole('region', {name: 'Ranking replay'})
   const previous = panel.getByRole('button', {name: 'Before', exact: true})
   const current = panel.getByRole('button', {name: 'After', exact: true})
@@ -46,7 +46,7 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
   if (testInfo.project.use.reducedMotion === 'reduce') {
     await expect(row).toHaveCSS('animation-name', 'none')
     expect(await panel.evaluate(el => el.getAnimations({subtree: true}).length)).toBe(0)
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
   } else {
     await expect(row).not.toHaveCSS('animation-name', 'none')
   }
@@ -79,7 +79,7 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
 
 test('watching and disliking the same post shows the net learned interest', async ({page}) => {
   await page.clock.install()
-  await page.goto('/')
+  await page.goto('/#feed')
   await page.getByRole('button', {name: 'Watch', exact: true}).click()
   await expect(page.getByRole('button', {name: 'Pause', exact: true})).toBeVisible()
   await page.clock.runFor(12_000)

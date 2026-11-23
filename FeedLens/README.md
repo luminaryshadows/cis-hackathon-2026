@@ -50,7 +50,7 @@ npm run dev
 # Open the URL printed by Vite, typically http://localhost:5173
 ```
 
-Like the opening post, compare **Before** and **After** in **Ranking replay**, then choose **Why this winner?** to open its score breakdown. Use **Reset session** to start again with a neutral profile and default settings.
+On the opening phone experiment, change the watch duration and follow the effect on Gaming interest. Choose **Explore feed** to inspect that session in the full workspace. **Reset session** restores a neutral profile there.
 
 Run `npm test` for the model tests and `npm run build` to produce the static site in `dist/`. Run `npm run build:portable` to write a standalone `FeedLens.html` one directory above the source.
 
