@@ -3,3 +3,10 @@
 @media(max-width:480px){.bx-board,.bx-inspector,.bx-tune{padding:15px}.bx-list button{gap:7px;grid-template-columns:19px 42px minmax(0,1fr) auto}.bx-list img{width:42px;height:38px}.bx-sliders{gap:16px}.bx h2{font-size:19px}}
 @media(prefers-reduced-motion:reduce){.bx-track i{transition:none}}
 .bx-path{list-style:none;margin:10px 0;padding:0 0 0 4px}.bx-path li{border-left:2px solid #c5d5be;position:relative;padding:0 0 10px 15px}.bx-path li:last-child{border-color:transparent;padding-bottom:0}.bx-path li:before{content:'';width:8px;height:8px;position:absolute;left:-5px;top:3px;border-radius:50%;background:#80a06d;box-shadow:0 0 0 2px var(--paper)}.bx-path small,.bx-path b{display:block}.bx-path b{margin-top:2px;font-size:13px}.bx-path small{font-size:11px;color:#566052}
+
+/* The board and its explanation enter in the same sequence as the phone tour's chapters. */
+@media (prefers-reduced-motion: no-preference) {
+  .bx-board, .bx-inspector { animation: xray-reveal .85s var(--phone-spring) backwards; }
+  .bx-inspector { animation-delay: .06s; }
+  @keyframes xray-reveal { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+}

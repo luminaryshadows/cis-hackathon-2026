@@ -36,7 +36,7 @@ The opening prompt and **How it works** dialog give users a short guided start. 
 
 ## Live link
 
-[Open the FeedLens demo](https://yg-gms.github.io/feedlens-demo/).
+[Open the original public prototype](https://yg-gms.github.io/feedlens-demo/). The branch preview and instructions for opening it offline are in the [repository README](../README.md#try-the-branch-demo).
 
 ---
 
@@ -50,7 +50,7 @@ npm run dev
 # Open the URL printed by Vite, typically http://localhost:5173
 ```
 
-Like the opening post and inspect **Up next**, then select a recommendation to open its score breakdown. Use **Reset session** to start again with a neutral profile and default settings.
+Like the opening post, compare **Before** and **After** in **Ranking replay**, then choose **Why this winner?** to open its score breakdown. Use **Reset session** to start again with a neutral profile and default settings.
 
 Run `npm test` for the model tests and `npm run build` to produce the static site in `dist/`. Run `npm run build:portable` to write a standalone `FeedLens.html` one directory above the source.
 

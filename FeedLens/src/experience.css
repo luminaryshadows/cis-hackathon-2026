@@ -5,3 +5,14 @@
 .feed-heading .counter{white-space:nowrap}
 @media(max-width:720px){.actions{gap:6px}.actions button{font-size:13px;gap:5px}.nav{gap:10px}}
 @media(max-width:380px){.actions button{gap:3px;font-size:12px}.actions button svg{width:15px}.nav .help{gap:4px}.intro h1{font-size:37px}}
+.watch-balance {
+  display: grid;
+  gap: 4px;
+  margin: 0 16px 13px;
+  padding: 10px 12px;
+  border-left: 3px solid #9273b5;
+  background: #f4effa;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.watch-balance span { color: #50445c; font-size: 13px; font-variant-numeric: tabular-nums; }

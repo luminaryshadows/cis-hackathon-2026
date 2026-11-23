@@ -1,4 +1,4 @@
-import {defaults, posts, neutral, rank, replay} from './engine.ts'
+import {defaults, eventWeight, posts, neutral, rank, replay} from './engine.ts'
 import type {Interaction, Kind, Settings, Topic} from './engine.ts'
 
 export function fresh() {
@@ -17,6 +17,16 @@ export type Action =
 export const currentPost = (s:Session)=>s.seen[s.seen.length-1]
 const visit = (s:Session)=>(s.round-1)*posts.length+s.seen.length
 export const reaction = (s:Session)=>s.events.find(e=>e.visit===visit(s) && (e.kind==='like'||e.kind==='dislike'))
+
+export function watchDislikeBalance(s:Session) {
+  const dislike = reaction(s)
+  if (dislike?.kind !== 'dislike') return null
+  const watches = s.events.filter(event => event.visit === dislike.visit && event.kind === 'watch')
+  if (!watches.length) return null
+  const watch = watches.reduce((sum, event) => sum + eventWeight(event, s.settings), 0)
+  const penalty = eventWeight(dislike, s.settings)
+  return {watch, penalty, net: watch + penalty}
+}
 function record(s:Session,kind:Kind):Session {
   const post = currentPost(s)
   const previous = kind==='like'||kind==='dislike' ? reaction(s) : undefined

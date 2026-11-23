@@ -13,6 +13,7 @@
 # node / build (only if we ever add a build step)
 node_modules/
 dist/
+/FeedLens.html
 build/
 .cache/
 .parcel-cache/

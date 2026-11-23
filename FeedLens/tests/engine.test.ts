@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {defaults,eventContribution,eventWeight,learn,neutral,posts,rank,replay,shares,topics} from '../src/engine.ts'
-import {currentPost,fresh,reaction,update} from '../src/session.ts'
+import {currentPost,fresh,reaction,update,watchDislikeBalance} from '../src/session.ts'
 import type {Interaction} from '../src/engine.ts'
 import type {Session} from '../src/session.ts'
 
@@ -13,6 +13,21 @@ const playFor=(s:Session,n:number)=>{
   for(let i=0;i<n;i++) playing=update(playing,{type:'tick'})
   return playing
 }
+
+test('the live watch/dislike comparison counts this visit and reweights both signals',()=>{
+  let s = playFor(fresh(),11)
+  assert.equal(watchDislikeBalance(s),null)
+  s = update(s,{type:'dislike'})
+  assert.ok(watchDislikeBalance(s)!.net < 0)
+  s = update(s,{type:'tick'})
+  const balance = watchDislikeBalance(s)!
+  assert.equal(balance.penalty,-4)
+  assert.ok(Math.abs(balance.watch - 4.2) < 1e-10)
+  assert.ok(Math.abs(balance.net - replay(s.events,s.settings).Gaming) < 1e-10)
+  assert.equal(watchDislikeBalance(update(s,{type:'setting',key:'watchTime',value:0}))!.net,-4)
+  assert.equal(watchDislikeBalance(update(s,{type:'dislike'})),null)
+  assert.equal(watchDislikeBalance(update(s,{type:'next'})),null)
+})
 
 test('balanced starting shares, signed learning, and finite shares in long sessions',()=>{
   assert.deepEqual(shares(neutral()),topics.map(()=>12.5))

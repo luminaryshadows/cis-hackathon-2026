@@ -1,23 +1,9 @@
-# Credits and choices
+# FeedLens credits
 
-Rule 7 asks two things of every component we did not write: that we can explain our own code,
-and that we can say **why we chose that component**. This file is that answer, kept current as
-we add things, including the ones we evaluated and rejected.
-
-Nothing yet — the scaffold is hand-written with no dependencies.
-
-When we add something, record it in this shape:
-
----
-
-## `<component name>` — `<version>` — `<link>`
-
-**What it does for us:** one sentence.
-
-**Why this one:** what we compared it against, and the specific property that decided it.
-"They're the popular one" is not a reason a judge will accept.
-
-**Cost:** what we took on by not writing it ourselves — bundle size, an abstraction we now have
-to explain, a behaviour we cannot control.
-
-**Rejected:** the alternatives and why they lost.
+| Component | How the branch uses it |
+| --- | --- |
+| [FeedLens prototype](https://github.com/yg-gms/feedlens-demo) | The team’s original catalog, illustrations, ranking engine and four interactive views provide the shared model for the replay. |
+| [Inside your phone](https://inside-your-phone-cis-lab.luminaryshadow.chatgpt.site) | The team adapted its damped spring motion, staggered chapter reveal and reversible experiment controls to show how recommendations change. The feed supplies the scores and positions. |
+| [React and React DOM](https://react.dev/) | The four views read one session so a reaction, score inspection and alternate history refer to the same events. |
+| [Vite](https://vite.dev/) | Vite bundles the app and static assets. The portable build embeds them in one HTML file for offline judging. |
+| [Playwright](https://playwright.dev/) | Browser tests exercise the production build with pointer and keyboard controls, including a mobile viewport with reduced motion. |

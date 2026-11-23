@@ -3,23 +3,15 @@
 **FeedLens** is our entry for the **CIS Hackathon**, released 19 November 2026.
 Submissions close **25 November 2026, 23:59 AoE**.
 
-> **Status: playable prototype, deployed.** The first build is live and interactive with a
-> recommendation engine running entirely in the browser. This repository holds the brief, the
-> design notes and the algorithm specification; the prototype source lives in
-> [yg-gms/feedlens-demo](https://github.com/yg-gms/feedlens-demo). Consolidating the source into
-> this repository before submission is the top open item in the [roadmap](docs/ROADMAP.md).
+The `feedlens-demo` branch contains the working app in [FeedLens](FeedLens/) and the hackathon [brief](BRIEF.md).
 
----
+## Try the branch demo
 
-## Try it
+Like the opening Gaming post. In **Ranking replay**, switch between **Before** and **After** to see which post took first place and how its score changed. Inspect the winner to see which topic tags earned those points.
 
-```
-https://yg-gms.github.io/feedlens-demo/
-```
+For a second experiment, reset the session, watch the opening post for all 12 seconds and tap **Dislike**. The feed shows how much each signal contributed to Gaming. Try the same reaction after a shorter watch.
 
-One post at a time, four sections, no sign-in and nothing to install. Like the opening post and
-watch what happens to **Up next**, then open **Behind the Feed** to see the exact points that
-earned the top slot.
+Run the branch locally with the commands below, or download **FeedLens-preview** from a successful [branch check](https://github.com/luminaryshadows/cis-hackathon-2026/actions/workflows/feedlens.yml?query=branch%3Afeedlens-demo), unzip it and open `FeedLens.html`. The [original public prototype](https://yg-gms.github.io/feedlens-demo/) is the earlier build.
 
 ---
 
@@ -141,32 +133,29 @@ Judges and interviews will probe this, so it is written down rather than discove
 
 ## Tech
 
-React 19.3.1 and React DOM 19.3.1, built with Vite 7.3.8, in TypeScript. Those are the only
-dependencies, and the engine imports none of them — `src/engine.ts` is pure functions over plain
-objects, which is why it can be tested and explained without talking about React at all.
-`docs/CREDITS.md` records why each was chosen.
-
-Deployment is a GitHub Actions workflow (`pages.yml`) that builds and publishes to Pages.
-
----
+React renders the four views of one browser session. Vite bundles the TypeScript app and local artwork. The ranking engine runs as pure functions, so the Node tests exercise the same calculations as the live interface. Playwright checks the built site in Chromium. See [component credits](docs/CREDITS.md).
 
 ## Running locally
 
-The prototype needs Node.js 22.12 or later. From a clone of
-[yg-gms/feedlens-demo](https://github.com/yg-gms/feedlens-demo):
+From the root of this branch, with Node.js 24 and npm installed, run
 
 ```bash
+cd FeedLens
 npm ci
-npm run dev        # Vite, typically http://localhost:5173
-npm test           # engine, history and experiment tests (node --test, no framework)
-npm run build      # static site into dist/
+npm run dev
 ```
 
-To preview this documentation repository instead, it is plain HTML:
+Open the URL Vite prints. To reproduce the automated checks and build the offline demo, run these in the same directory
 
 ```bash
-python3 -m http.server 8000
+npm test
+npx playwright install chromium
+npm run test:browser
+npm audit --audit-level=low
+npm run build:portable
 ```
+
+The browser test builds the production site in `FeedLens/dist/`. The portable build writes `FeedLens.html` at the repository root.
 
 ---
 
@@ -184,7 +173,7 @@ docs/CREDITS.md     every component we did not write, and why we chose it
 index.html          placeholder page still served at the scaffold URL
 ```
 
-**The prototype — [yg-gms/feedlens-demo](https://github.com/yg-gms/feedlens-demo)**
+**Application files inside [FeedLens/](FeedLens/)**
 
 ```
 src/engine.ts       learning, weighting, scoring, ranking — no DOM, no React

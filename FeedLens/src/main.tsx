@@ -9,6 +9,8 @@ import {FeedControls, Lab} from './Lab'
 import {TimeMachine} from './TimeMachine'
 import {InterestProfile, NextQueue} from './LivePanels'
 import {Behind} from './XRay'
+import {RankingReplay} from './RankingReplay'
+import {WatchDislike} from './WatchDislike'
 import './style.css'
 import './experience.css'
 import './sections.css'
@@ -16,7 +18,7 @@ import './sections.css'
 const time = (seconds:number) => '0:'+String(seconds).padStart(2,'0')
 
 const sections = [
-  {name:'Your Feed', icon:'feed', subtitle:'Watch, like, or skip a post. See what your feed learns from you.'},
+  {name:'Your Feed', icon:'feed', subtitle:'Like the first post. Compare Before and After in Ranking replay, then choose “Why this winner?” to follow the score.'},
   {name:'Behind the Feed', icon:'scan', subtitle:'Follow a signal from your history to the score that puts a post on top.'},
   {name:'Algorithm Lab', icon:'science', subtitle:'Make a prediction, change one variable, and see what the algorithm does.'},
   {name:'Time Machine', icon:'clock', subtitle:'Change one past interaction and compare the recommendations you get.'},
@@ -122,8 +124,10 @@ function App() {
           <button className="watch" disabled={s.seconds>=post.duration} onClick={()=>dispatch({type:'play'})}><Icon name={s.playing?'pause':'play'} size={17}/>{s.playing?'Pause':s.seconds>=post.duration?'Watched':'Watch'}</button>
           <button className={'like '+(feedback==='like'?'liked':'')} aria-pressed={feedback==='like'} onClick={()=>dispatch({type:'like'})}><Icon name="heart" size={19}/>{feedback==='like'?'Liked':'Like'}</button>
           <button className="dislike" aria-pressed={feedback==='dislike'} onClick={()=>dispatch({type:'dislike'})}><Icon name="dislike" size={17}/>{feedback==='dislike'?'Disliked':'Dislike'}</button></div>
+          <WatchDislike session={s}/>
           <button className="why" onClick={()=>openXRay(post)}><Icon name="scan" size={17}/>Why am I seeing this?<span aria-hidden="true">↗</span></button></>}
         </article>
+        <RankingReplay key={s.round} queue={queue} onInspect={openXRay}/>
         <FeedControls settings={s.settings} onChange={onChange} scope="feed"/>
       </section><aside ref={sidebar}>
         <InterestProfile profile={profile} note={s.note} revision={s.revision} signalTopics={s.signalTopics}/>
@@ -134,7 +138,7 @@ function App() {
       <div hidden={section!==3}><TimeMachine session={s}/></div>
     </main><span className="travel-signal" aria-hidden="true" ref={signal}/>
     <dialog aria-labelledby="help-title" ref={dialog} onClick={e=>{if(e.target===dialog.current)dialog.current?.close()}}><div className="dialog-head"><h2 id="help-title">How FeedLens works</h2><button aria-label="Close" onClick={()=>dialog.current?.close()}><Icon name="close"/></button></div>
-      <p>Like the opening post and look at <b>Up next</b>. Select a recommendation to see exactly how its tags and your reactions earned its rank.</p>
+      <p>Tap <b>Like</b> on the opening post. In <b>Ranking replay</b>, switch between <b>Before</b> and <b>After</b> to compare the candidates. Choose <b>Why this winner?</b> to inspect the top score.</p>
       <p><b>Watch</b> sends a signal each second. A dislike or a skip before three seconds lowers interest. Scroll down over the cover or swipe up to advance.</p>
       <p>Open <b>Algorithm Lab</b> to change how the feed learns and ranks. In <b>Time Machine</b>, branch from a past reaction to see how a different signal changes the rankings.</p></dialog>
   </>
