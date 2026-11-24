@@ -2,39 +2,98 @@
   /* Inside your phone's motion.js: the .85 s damped spring sampled at 40 intervals. */
   --phone-spring: linear(0, .0294, .1018, .1985, .3057, .4138, .5167, .6105, .6932, .7641, .8234, .8718, .9105, .9407, .9637, .9808, .993, 1.0013, 1.0067, 1.0099, 1.0114, 1.0118, 1.0114, 1.0105, 1.0093, 1.008, 1.0068, 1.0056, 1.0045, 1.0035, 1.0027, 1.002, 1.0015, 1.001, 1.0007, 1.0004, 1.0002, 1.0001, 1, .9999, 1);
 }
-.panel.ranking-replay {
-  margin-top: 18px; padding: 18px 20px; color: #f4f7ed; background: #272f27; border-color: #202720;
+#workspace .ranking-replay {
+  padding: 16px 20px 10px;
+  color: var(--ink);
+  background: var(--paper);
+  border-color: var(--line);
 }
-.ranking-replay header, .replay-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.ranking-replay h2 svg { color: #c5eea5; }
-.replay-switch { display: inline-flex; padding: 3px; border: 1px solid #677362; border-radius: 8px; }
-.replay-switch button { background: transparent; color: #e6ebdf; border: 0; border-radius: 4px; padding: 5px 10px; font-size: 12px; font-weight: 650; }
-.replay-switch button[aria-pressed=true] { color: #263022; background: #daf1c5; }
-.replay-switch button:disabled { color: #a8b2a3; cursor: default; }
-.ranking-replay button:focus-visible { outline-color: #c5eea5; }
-.replay-caption, .replay-result { color: #ced6c8; font-size: 13px; line-height: 1.5; }
-.replay-caption { margin: 5px 0 14px; }
-.ranking-replay ol { --height: 42px; position: relative; height: calc(var(--height) * var(--count)); list-style: none; margin: 0; padding: 0; }
+.ranking-replay header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#workspace .ranking-replay h2 { font: 500 28px/1 'Phone STIX', Georgia, serif; letter-spacing: -.035em; }
+.replay-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; }
+.replay-switch button {
+  min-height: 36px;
+  padding: 0 10px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.replay-switch button[aria-pressed=true] { color: var(--ink); background: #292624; }
+.replay-switch button:disabled { opacity: .55; cursor: default; }
+.replay-caption, .replay-result { font-size: 13px; line-height: 1.4; margin: 8px 0 10px; }
+.replay-caption { color: var(--muted); }
+.replay-result { color: var(--ink); }
+.ranking-replay ol {
+  --row-height: 58px;
+  position: relative;
+  height: calc(var(--row-height) * var(--count));
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
 .ranking-replay li {
-  position: absolute; inset: 0 0 auto; display: flex; align-items: center; gap: 10px; height: var(--height);
-  transform: translateY(calc(var(--place) * 100%)); transition: transform .85s var(--phone-spring);
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--row-height);
+  transform: translateY(calc(var(--place) * 100%));
+  transition: transform .85s var(--phone-spring);
   animation: replay-enter .5s var(--phone-spring);
 }
-@keyframes replay-enter { from { opacity: .2; translate: 9px 0; } }
-.replay-place, .replay-row b { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-variant-numeric: tabular-nums; }
-.replay-place { color: #bfcbb9; font-size: 12px; }
-.replay-row { display: grid; flex: 1; min-width: 0; grid-template-columns: minmax(0,1fr) auto; gap: 4px 10px; }
-.replay-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; }
-.replay-row b { font-size: 13px; }
-.replay-row small { color: #bfcbb9; font-size: 10px; font-weight: normal; }
-.replay-track { position: relative; grid-column: 1/-1; height: 5px; border-radius: 2px; background: #465143; }
-.replay-track i { position: absolute; inset-block: 0; border-radius: inherit; background: var(--color); transition: width .85s var(--phone-spring), left .85s var(--phone-spring); }
-.replay-track span { position: absolute; top: -1px; width: 1px; height: 7px; background: #cbd2c4; }
-.replay-result { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid #455041; }
-.replay-inspect { margin-top: 10px; display: inline-flex; align-items: center; gap: 7px; padding: 3px 0; border: 0; background: transparent; color: #d8f7b9; font-size: 13px; font-weight: 650; }
+@keyframes replay-enter { from { opacity: .2; translate: 6px 0; } }
+.replay-row {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 26px 58px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 0 2px;
+  text-align: left;
+  background: transparent;
+  color: var(--ink);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+.replay-row:enabled:hover { background: #211d1a; }
+.replay-row:disabled { cursor: default; }
+.replay-row img { width: 100%; height: 37px; object-fit: cover; border-radius: 2px; }
+.replay-details { min-width: 0; }
+.replay-details strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.12;
+}
+.replay-details small, .replay-score small, .replay-place { color: var(--muted); font-size: 11px; }
+.replay-details small { display: block; margin-top: 3px; }
+.replay-place, .replay-score { font-variant-numeric: tabular-nums; }
+.replay-score { font-size: 14px; font-weight: 650; white-space: nowrap; text-align: right; }
+.replay-score small { font-weight: 500; }
+.ranking-replay li:first-child .replay-score,
+.ranking-replay li:first-child .replay-place { color: var(--copper); }
+.replay-inspect {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 650;
+}
 .replay-inspect:hover { text-decoration: underline; text-underline-offset: 3px; }
-@media(max-width:720px) { .panel.ranking-replay { width: 100%; margin: 0; padding: 15px; } }
-.replay-track i { transform-origin: left; animation: replay-score .85s var(--phone-spring); }
-.replay-track i.negative { transform-origin: right; }
-@keyframes replay-score { from { transform: scaleX(0); } }
 .replay-inspect:disabled { visibility: hidden; }
+#workspace .ranking-replay button:focus-visible { outline-color: var(--copper); }
+@media (max-width: 720px) {
+  #workspace .ranking-replay { padding-inline: 14px; }
+  .replay-switch button, .replay-inspect { min-height: 44px; }
+  .replay-row { grid-template-columns: 23px 50px minmax(0, 1fr) auto; gap: 7px; }
+}

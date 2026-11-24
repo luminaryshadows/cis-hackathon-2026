@@ -53,7 +53,8 @@ with no browser, and an interview answer about the scoring never needs to involv
 | File | Responsibility |
 |------|----------------|
 | `src/main.tsx` | Shell: session reducer, hash routing, section nav, "How it works" dialog, reset. |
-| `src/LivePanels.tsx` | Interest profile (constellation and bar views) and the ranked "Up next" queue. |
+| `src/LivePanels.tsx` | Interest weights and shares, shown as ranked bars or a constellation. |
+| `src/RankingReplay.tsx` | The three posts in Up next, with scores before and after the last change and links to each score breakdown. |
 | `src/XRay.tsx` | Candidate list, score-component bars, and the event-attribution panel. |
 | `src/Lab.tsx` | Slider controls plus the three predict-and-reveal experiments. |
 | `src/TimeMachine.tsx` | Event timeline, edit controls, and the original-versus-alternate comparison. |

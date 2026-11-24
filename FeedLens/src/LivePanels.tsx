@@ -1,9 +1,8 @@
 import React, {useLayoutEffect, useRef, useState} from 'react'
 import type {CSSProperties} from 'react'
-import {art} from './art'
 import {Icon} from './Icon'
 import {shares, topics} from './engine'
-import type {Post, Profile, Topic} from './engine'
+import type {Profile, Topic} from './engine'
 import './live-panels.css'
 
 function Percent({value}: {value: number}) {
@@ -46,7 +45,7 @@ function Constellation({profile,percent}:{profile:Profile;percent:number[]}) {
         <line key={a+'-'+b} x1={points[a].x} y1={points[a].y} x2={points[b].x} y2={points[b].y}/>)}</g>
       {topics.map((topic,i)=>{
         const {x,y,r}=points[i]
-        return <g key={topic} className={'star '+topic.toLowerCase()} role="button" tabIndex={0}
+        return <g key={topic} className="star" role="button" tabIndex={0}
           aria-label={topic+', '+percent[i]+' percent, weight '+signed.format(profile[topic])}
           aria-pressed={topic===selected} onMouseEnter={()=>setSelected(topic)} onClick={()=>setSelected(topic)}
           onFocus={()=>setSelected(topic)} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSelected(topic)}}}
@@ -57,14 +56,14 @@ function Constellation({profile,percent}:{profile:Profile;percent:number[]}) {
         </g>
       })}
     </svg>
-    <div className={'star-detail '+selected.toLowerCase()}><i/>{selected}<b>{percent[topics.indexOf(selected)]}% share</b><span>Weight {signed.format(profile[selected])}</span></div>
+    <div className="star-detail"><i/>{selected}<b>{percent[topics.indexOf(selected)]}% share</b><span>Weight {signed.format(profile[selected])}</span></div>
   </div>
 }
 
 export function InterestProfile({profile, note, revision, signalTopics}: {
   profile: Profile; note: string; revision: number; signalTopics: Topic[]
 }) {
-  const [view,setView] = useState<'bars'|'stars'>('stars')
+  const [view,setView] = useState<'bars'|'stars'>('bars')
   const [history, setHistory] = useState({revision, current: profile, previous: profile})
   if (history.revision !== revision) {
     setHistory({revision, current: profile, previous: history.current})
@@ -72,70 +71,37 @@ export function InterestProfile({profile, note, revision, signalTopics}: {
   const percent = shares(profile)
   const before = shares(history.previous)
   const rows = topics.map((topic, i) => ({topic, i})).sort((a, b) => profile[b.topic] - profile[a.topic])
-  return <section className="panel insights interest-profile" aria-labelledby="profile-heading">
+  return <section className="panel interest-profile" aria-labelledby="profile-heading">
     <div className="panel-heading">
-      <h2 id="profile-heading"><span className="heading-icon mint"><Icon name="signal"/></span>Interest profile</h2>
-      <span className="live"><i/>Live</span>
+      <h2 id="profile-heading">Interest profile</h2>
     </div>
-    <p className="sub">What the algorithm thinks you like.</p>
+    <div className={'signal-note' + (revision > 0 ? ' has-signal' : '')} role="status" aria-atomic="true">
+      <span className="signal-content" key={revision}>{note}</span>
+    </div>
     <div className="view-switch" role="group" aria-label="Interest visualization">
-      <button aria-pressed={view==='stars'} onClick={()=>setView('stars')}><Icon name="spark" size={14}/>Constellation</button>
-      <button aria-pressed={view==='bars'} onClick={()=>setView('bars')}><Icon name="signal" size={14}/>Bar view</button>
+      <button type="button" aria-pressed={view==='bars'} onClick={()=>setView('bars')}>Bar view</button>
+      <button type="button" aria-pressed={view==='stars'} onClick={()=>setView('stars')}>Constellation</button>
     </div>
-    {view==='stars'?<Constellation profile={profile} percent={percent}/>:<ol className="interest-bars" style={{'--topics': rows.length} as CSSProperties}>
+    {view==='stars'?<Constellation profile={profile} percent={percent}/>:<ol role="list" className="interest-bars" style={{'--topics': rows.length} as CSSProperties}>
       {rows.map(({topic, i}, position) => {
         const shareChange = Math.round((percent[i] - before[i]) * 10) / 10
         const weightChange = profile[topic] - history.previous[topic]
         const touched = revision > 0 && signalTopics.includes(topic) && weightChange !== 0
-        return <li className={'interest-row ' + topic.toLowerCase()} key={topic}
+        const delta = signed.format(shareChange || weightChange)
+        return <li className="interest-row" key={topic} data-changed={touched || undefined}
           style={{'--rank': position} as CSSProperties}>
           <span className="topic-label"><Icon name={topic.toLowerCase()} size={16}/>{topic}</span>
           <span className="interest-meter" role="meter" aria-label={topic + ' interest share'}
-            aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent[i]} aria-valuetext={percent[i] + '%'}>
+            aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent[i]}
+            aria-valuetext={percent[i] + '%' + (touched ? ', change ' + delta + (shareChange ? ' percentage points' : ' weight') : '')}>
             <span className="track"><i style={{width: percent[i] + '%'}}/></span>
-            {touched && <React.Fragment key={revision}>
-              <i className="interest-pulse" aria-hidden="true"/>
-              <small className={'interest-delta ' + ((shareChange || weightChange) < 0 ? 'loss' : '')} aria-hidden="true">
-                {signed.format(shareChange || weightChange)}{shareChange ? ' pp' : ' weight'}
-              </small>
-            </React.Fragment>}
+            {touched && <small key={revision} className={'interest-delta ' + ((shareChange || weightChange) < 0 ? 'loss' : '')} aria-hidden="true">
+              {delta}{shareChange ? ' pp' : ' weight'}
+            </small>}
           </span>
           <Percent value={percent[i]}/>
         </li>
       })}
     </ol>}
-    <div className={'signal-note ' + (revision > 0 ? 'has-signal' : 'neutral-signal')} role="status" aria-atomic="true">
-      <span className="signal-content" key={revision}><Icon name="wave" size={19}/>{note}</span>
-    </div>
-  </section>
-}
-
-export function NextQueue({queue, onInspect}: {queue: Post[]; onInspect: (post: Post) => void}) {
-  const ids = queue.map(post => post.id)
-  const [ranks, setRanks] = useState({current: ids, previous: ids})
-  if (ids.length !== ranks.current.length || ids.some((id, i) => id !== ranks.current[i])) {
-    setRanks({current: ids, previous: ids.length > ranks.current.length ? ids : ranks.current})
-  }
-  return <section className="queue live-queue" aria-labelledby="queue-heading">
-    <div className="queue-heading">
-      <h2 id="queue-heading"><Icon name="queue" size={21}/>Up next</h2><span>Ranked for you</span>
-    </div>
-    {queue.length ? <ol>{queue.slice(0, 3).map((post, i) => {
-      const oldRank = ranks.previous.indexOf(post.id) + 1
-      const rank = i + 1
-      const moved = oldRank > 0 && oldRank !== rank
-      const movement = moved ? (oldRank > rank ? 'rising' : 'falling') : ''
-      return <li key={post.id} style={{'--rank': i} as CSSProperties}>
-        <button type="button" className="queue-card" onClick={() => onInspect(post)}
-          aria-label={'Inspect ' + post.title + ', ' + post.topic + ', ranked ' + rank + (moved ? ', previously ' + oldRank : '')}>
-          <span className="queue-cover"><img src={art(post)} alt=""/>
-            <span className={'queue-rank ' + movement} key={oldRank + '-' + rank}>
-              {moved && <>#{oldRank} → </>}#{rank}
-            </span>
-          </span>
-          <span className="queue-details"><span className="queue-topic">{post.topic}</span><strong>{post.title}</strong></span>
-        </button>
-      </li>
-    })}</ol> : <p>You’ve reached the last post in this session.</p>}
   </section>
 }

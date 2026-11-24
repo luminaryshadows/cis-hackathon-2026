@@ -12,8 +12,8 @@ const after = ranking(liked)
 
 async function expectRanking(panel: Locator, expected: Ranked[]) {
   const rows = panel.getByRole('listitem')
-  await expect(rows).toHaveCount(2)
-  for (const [index, candidate] of expected.slice(0, 2).entries()) {
+  await expect(rows).toHaveCount(3)
+  for (const [index, candidate] of expected.slice(0, 3).entries()) {
     await expect(rows.nth(index)).toContainText(candidate.post.title)
     await expect(rows.nth(index)).toContainText(candidate.total.toFixed(2))
   }
@@ -54,6 +54,9 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
   await panel.getByRole('button', {name: 'Why this winner?'}).press('Enter')
   await expect(page.getByRole('heading', {name: 'Behind the Feed'})).toBeVisible()
   await expect(page.getByRole('heading', {name: after[0].post.title})).toBeVisible()
+  if (testInfo.project.use.isMobile) {
+    await expect(page.getByText('Live score', {exact: true})).toBeInViewport()
+  }
   await expect(page.getByText('Live score', {exact: true}).locator('..')).toContainText(after[0].total.toFixed(2))
   const inspector = page.getByRole('button', {name: new RegExp(after[0].post.title), pressed: true})
   await expect(inspector).toBeVisible()

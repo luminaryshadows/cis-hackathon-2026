@@ -12,6 +12,11 @@ export function WatchDislike({session}:{session:Session}) {
   return <div className="watch-balance" role="group" aria-label="Watch time versus dislike">
     <strong>{net > 0 ? 'Watch time outweighs your dislike.' :
       net < 0 ? 'Your dislike outweighs watch time.' : 'The two signals balance.'}</strong>
-    <span>Watch {signed.format(watch)} · Dislike {signed.format(penalty)} · {currentPost(session).topic} {signed.format(net)} interest points this visit</span>
+    <div className="watch-balance-values">
+      <span>Watch <b>{signed.format(watch)}</b></span>
+      <span>Dislike <b>{signed.format(penalty)}</b></span>
+      <span>{currentPost(session).topic} <b>{signed.format(net)}</b></span>
+    </div>
+    <small>Interest points this visit</small>
   </div>
 }

@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import type {CSSProperties} from 'react'
 import type {Post, Ranked} from './engine'
-import {Icon} from './Icon'
+import {art} from './art'
 import {rankingChange} from './rankingChange'
 import './ranking-replay.css'
 
@@ -13,36 +13,43 @@ export function RankingReplay({queue, onInspect}: {queue: Ranked[]; onInspect: (
     setFrames({before: frames.after, after: queue})
     setStep('After')
   }
-  const rows = (step === 'Before' && frames.before ? frames.before : queue).slice(0, 2)
-  const scores = [...(frames.before ?? []).slice(0, 2), ...queue.slice(0, 2)].map(row => row.total)
-  const low = Math.min(0, ...scores)
-  const span = Math.max(0, ...scores) - low || 1
-  const zero = -low / span * 100
+  const reviewing = step === 'Before'
+  const rows = (reviewing && frames.before ? frames.before : queue).slice(0, 3)
+  let caption = queue.length
+    ? 'Select a post to see how it earned its score.'
+    : 'You’ve reached the last post in this session.'
+  if (reviewing) caption = 'Scores before your last change. Switch to After to inspect a score.'
+  else if (frames.before) caption = rankingChange(frames.before, queue)
 
-  return <section className="panel ranking-replay" aria-labelledby="replay-heading">
+  return <section className="panel ranking-replay" aria-label="Ranking replay">
     <header>
-      <h2 id="replay-heading"><Icon name="wave" size={23}/>Ranking replay</h2>
+      <h2>Up next</h2>
       <div className="replay-switch" role="group" aria-label="Compare rankings">
         {(['Before', 'After'] as const).map(frame => <button type="button" key={frame}
           aria-pressed={step === frame} disabled={frame === 'Before' && !frames.before}
           onClick={() => setStep(frame)}>{frame}</button>)}
       </div>
     </header>
-    <p className="replay-caption">{frames.before ? 'Top recommendations ' + step.toLowerCase() + ' your last change.' : 'Like the post above to see how these rankings change.'}</p>
-    <ol role="list" aria-label={step + ' ranking'} style={{'--count': rows.length} as CSSProperties}>
-      {rows.map(({post, total}, i) => <li key={post.id} data-id={post.id} data-score={total}
-        className={post.topic.toLowerCase()} style={{'--place': i} as CSSProperties}>
-        <span className="replay-place">#{i + 1}</span>
-        <div className="replay-row"><span className="replay-title">{post.title}</span>
-          <b>{total.toFixed(2)} <small>pts</small></b>
-          <div className="replay-track" aria-hidden="true">
-            <i className={total < 0 ? 'negative' : undefined} style={{left: (total < 0 ? (total - low) / span * 100 : zero) + '%', width: Math.abs(total) / span * 100 + '%'}}/>
-            <span style={{left: zero + '%'}}/>
-          </div>
-        </div>
-      </li>)}
-    </ol>
-    {frames.before && <p className="replay-result" role="status">{rankingChange(frames.before, queue)}</p>}
-    {rows.length > 0 && <button type="button" disabled={step === 'Before'} className="replay-inspect" onClick={() => onInspect(rows[0].post)}>Why this winner? <span aria-hidden="true">↗</span></button>}
+    <p className={frames.before && !reviewing ? 'replay-result' : 'replay-caption'} role="status">{caption}</p>
+    {rows.length > 0 && <ol role="list" aria-label={step + ' ranking'} style={{'--count': rows.length} as CSSProperties}>
+      {rows.map(({post, total}, i) => {
+        const previous = frames.before?.findIndex(row => row.post.id === post.id)
+        const moved = !reviewing && previous !== undefined && previous >= 0 && previous !== i
+        return <li key={post.id} data-id={post.id} data-score={total} style={{'--place': i} as CSSProperties}>
+          <button type="button" className="replay-row" disabled={reviewing}
+            aria-label={'Inspect ' + post.title + ', ' + post.topic + ', ranked ' + (i + 1) + (moved ? ', previously ' + (previous + 1) : '') + ', ' + total.toFixed(2) + ' points'}
+            onClick={() => onInspect(post)}>
+            <span className="replay-place">#{i + 1}</span>
+            <img src={art(post)} alt=""/>
+            <span className="replay-details">
+              <strong>{post.title}</strong>
+              <small>{post.topic}{moved && <> · From #{previous + 1}</>}</small>
+            </span>
+            <b className="replay-score">{total.toFixed(2)} <small>pts</small></b>
+          </button>
+        </li>
+      })}
+    </ol>}
+    {rows.length > 0 && <button type="button" disabled={reviewing} className="replay-inspect" onClick={() => onInspect(rows[0].post)}>Why this winner? <span aria-hidden="true">↗</span></button>}
   </section>
 }

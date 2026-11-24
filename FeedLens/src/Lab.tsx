@@ -104,10 +104,14 @@ export function Lab({settings, onChange}: ControlsProps) {
 }
 
 export function FeedControls({settings,onChange,scope}: ControlsProps & {scope:string}) {
-  return <div className="panel lens-lab"><h2><span className="heading-icon peach"><Icon name="sliders" size={18}/></span>Live feed controls</h2>
+  const controls = <>
       <p>Learning controls change how actions shape your interests. Ranking controls reorder upcoming posts.</p>
       <div className="lens-groups">{groups.map(group => <fieldset key={group.name}><legend>{group.name}</legend>
         {group.controls.map(([key, label, hint]) => <Slider key={key} id={scope + '-' + key} label={label} hint={hint} value={settings[key]} onChange={value => onChange(key,value)}/>)}
       </fieldset>)}</div>
-    </div>
+    </>
+  if (scope === 'feed') {
+    return <details className="panel lens-lab lens-disclosure"><summary>Tune the feed</summary>{controls}</details>
+  }
+  return <section className="panel lens-lab"><h2><span className="heading-icon"><Icon name="sliders" size={18}/></span>Live feed controls</h2>{controls}</section>
 }

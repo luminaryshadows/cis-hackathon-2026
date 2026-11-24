@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useReducer, useRef, useState} from 'react'
+import React, {useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState} from 'react'
 import {createRoot} from 'react-dom/client'
 import {posts, rank, replay} from './engine'
 import type {Post} from './engine'
@@ -11,21 +11,19 @@ import {Icon} from './Icon'
 import {art} from './art'
 import {FeedControls, Lab} from './Lab'
 import {TimeMachine} from './TimeMachine'
-import {InterestProfile, NextQueue} from './LivePanels'
+import {InterestProfile} from './LivePanels'
 import {Behind} from './XRay'
 import {RankingReplay} from './RankingReplay'
 import {WatchDislike} from './WatchDislike'
 import './style.css'
-import './experience.css'
-import './sections.css'
 
 const time = (seconds:number) => '0:'+String(seconds).padStart(2,'0')
 
 const sections = [
-  {name:'Your Feed', icon:'feed', subtitle:'Watch or react to a post to change what comes next.'},
-  {name:'Behind the Feed', icon:'scan', subtitle:'Follow a signal from your history to the score that puts a post on top.'},
-  {name:'Algorithm Lab', icon:'science', subtitle:'Make a prediction, change one variable, and see what the algorithm does.'},
-  {name:'Time Machine', icon:'clock', subtitle:'Change one past interaction and compare the recommendations you get.'},
+  {name:'Your Feed', short:'Feed', subtitle:'Try a like or a longer watch. See which post rises to the top.'},
+  {name:'Behind the Feed', short:'Behind', subtitle:'Pick a post to trace its score back to your actions.'},
+  {name:'Algorithm Lab', short:'Lab', subtitle:'Predict the next recommendation, then put the model to the test.'},
+  {name:'Time Machine', short:'Time Machine', subtitle:'Change one past action and see how your feed could have turned out.'},
 ] as const
 const sectionIds = ['feed','behind','lab','history']
 const sectionFromHash = () => Math.max(0, sectionIds.indexOf(window.location.hash.slice(1)))
@@ -37,6 +35,7 @@ function Workspace({initial}:{initial:Session}) {
   const [inspectionKey,setInspectionKey] = useState(0)
   const [section,setSection] = useState(sectionFromHash)
   const heading = useRef<HTMLHeadingElement>(null)
+  const previousView = useRef({section, sessionKey})
   const dialog = useRef<HTMLDialogElement>(null)
   const player = useRef<HTMLDivElement>(null)
   const signal = useRef<HTMLSpanElement>(null)
@@ -46,14 +45,22 @@ function Workspace({initial}:{initial:Session}) {
   const feedback = reaction(s)?.kind
   const profile = useMemo(()=>replay(s.events,s.settings),[s.events,s.settings])
   const queue = useMemo(()=>rank(profile,s.seen,s.settings),[profile,s.seen,s.settings])
+  useLayoutEffect(() => {
+    const previous = previousView.current
+    previousView.current = {section, sessionKey}
+    if (previous.section === section && previous.sessionKey === sessionKey) return
+    if (heading.current?.closest('[hidden]')) return
+    heading.current?.focus({preventScroll: true})
+    window.scrollTo(0, 0)
+  }, [section, sessionKey])
   function navigate(page:number) {
     dispatch({type:'pause'})
     setSection(page)
     if (window.location.hash !== '#'+sectionIds[page]) window.location.hash = sectionIds[page]
-    requestAnimationFrame(()=>{
-      heading.current?.focus({preventScroll:true})
-      window.scrollTo(0,0)
-    })
+    if (page === section) {
+      heading.current?.focus({preventScroll: true})
+      window.scrollTo(0, 0)
+    }
   }
   useEffect(()=>{
     const change = () => {dispatch({type:'pause'});setSection(sectionFromHash())}
@@ -103,45 +110,47 @@ function Workspace({initial}:{initial:Session}) {
     return ()=>animation.cancel()
   },[s.revision,s.signalTopics])
   return <>
-    <header className="top"><div className="top-inner"><a className="brand" href="#experiment" aria-label="Back to phone experiment">FeedLens</a>
-      <nav className="sections-nav" aria-label="Explore FeedLens">{sections.map((item,i)=><a key={item.name} href={'#'+sectionIds[i]} aria-current={section===i?'page':undefined}
-        onClick={e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();navigate(i)}}><Icon name={item.icon} size={16}/>{item.name}</a>)}</nav>
+    <header className="top"><div className="top-inner"><a className="brand" href="#experiment" aria-label="Back to phone experiment"><Icon name="scan" size={24}/>FeedLens</a>
+      <nav className="sections-nav" aria-label="Explore FeedLens">{sections.map((item,i)=><a key={item.name} href={'#'+sectionIds[i]} aria-label={item.name} aria-current={section===i?'page':undefined}
+        onClick={e=>{if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;e.preventDefault();navigate(i)}}><span className="nav-full">{item.name}</span><span className="nav-short">{item.short}</span></a>)}</nav>
       <div className="nav"><button className="help" aria-label="How it works" title="How it works" onClick={()=>{dispatch({type:'pause'});dialog.current?.showModal()}}><Icon name="help" size={19}/></button>
       <button className="reset" onClick={reset}><Icon name="reset" size={16}/>Reset<span className="wide"> session</span></button></div></div></header>
     <main key={sessionKey}><section className={'intro intro-'+section} key={section}><div>
       <h1 ref={heading} tabIndex={-1}>{sections[section].name}</h1>
       <p>{sections[section].subtitle}</p></div>
       </section>
-      <div hidden={section!==0}><div className="layout"><section className="left" aria-label="Feed">
-        <article className="feed panel"><div className="feed-heading"><h2><span className="heading-icon lilac"><Icon name="feed" size={19}/></span>Now showing</h2>
+      <div hidden={section!==0}><div className="layout">
+        <article className="feed" aria-label="Feed"><div className="feed-heading"><h2>Now playing</h2>
           <span className="counter">{s.round>1?'Round '+s.round+' · ':''}Post <b>{String(s.seen.length).padStart(2,'0')}</b> / {posts.length}</span></div>
           {s.done ? <div className="finish"><Icon name="eye" size={44}/><h2>Round complete</h2><p>You’ve seen all {posts.length} posts. Start another round with the interests you’ve trained.</p><button className="reset" onClick={()=>dispatch({type:'round'})}><Icon name="play" size={16}/>Start new round</button></div> :
           <><div className="player" ref={player} aria-label={post.title}>
             <img key={post.id} className="poster" src={art(post)} alt="" style={{animationPlayState:s.playing?'running':'paused'}}/>
-            <div className="shade"/><span className={'badge '+post.topic.toLowerCase()}><Icon name={post.topic.toLowerCase()} size={17}/>{post.topic}</span>
-            <span className="duration"><Icon name="clock" size={14}/>{s.playing||s.seconds?time(s.seconds)+' / ':''}{time(post.duration)}</span>
-            <div className="caption" key={post.id+'caption'}><span className="handle">@{post.creator}</span><h3>{post.title}</h3></div>
+            <span className="badge"><Icon name={post.topic.toLowerCase()} size={17}/>{post.topic}</span>
+            <span className="duration">{time(s.seconds)} / {time(post.duration)}</span>
             <div className="progress"><i style={{width:100*s.seconds/post.duration+'%'}}/></div>
           </div>
-          <div className="actions" ref={actionBar}><button className="skip" onClick={next}><Icon name="skip"/>{feedback||s.seconds>=3?'Next':'Skip'}</button>
+          <div className="caption" key={post.id+'caption'}><h3>{post.title}</h3><div className="post-credit"><span>@{post.creator}</span>
+            <button className="why" onClick={()=>openXRay(post)}>Why am I seeing this? <span aria-hidden="true">↗</span></button></div></div>
+          <div className="actions" ref={actionBar}>
           <button className="watch" disabled={s.seconds>=post.duration} onClick={()=>dispatch({type:'play'})}><Icon name={s.playing?'pause':'play'} size={17}/>{s.playing?'Pause':s.seconds>=post.duration?'Watched':'Watch'}</button>
           <button className={'like '+(feedback==='like'?'liked':'')} aria-pressed={feedback==='like'} onClick={()=>dispatch({type:'like'})}><Icon name="heart" size={19}/>{feedback==='like'?'Liked':'Like'}</button>
-          <button className="dislike" aria-pressed={feedback==='dislike'} onClick={()=>dispatch({type:'dislike'})}><Icon name="dislike" size={17}/>{feedback==='dislike'?'Disliked':'Dislike'}</button></div>
+          <button className="dislike" aria-pressed={feedback==='dislike'} onClick={()=>dispatch({type:'dislike'})}><Icon name="dislike" size={17}/>{feedback==='dislike'?'Disliked':'Dislike'}</button>
+          <button className="skip" onClick={next}>{feedback||s.seconds>=3?'Next':'Skip'}<Icon name="skip" size={16}/></button></div>
           <WatchDislike session={s}/>
-          <button className="why" onClick={()=>openXRay(post)}><Icon name="scan" size={17}/>Why am I seeing this?<span aria-hidden="true">↗</span></button></>}
+          </>}
         </article>
+      <aside ref={sidebar} aria-label="Recommendation analysis">
         <RankingReplay key={s.round} queue={queue} onInspect={openXRay}/>
-        <FeedControls settings={s.settings} onChange={onChange} scope="feed"/>
-      </section><aside ref={sidebar}>
         <InterestProfile profile={profile} note={s.note} revision={s.revision} signalTopics={s.signalTopics}/>
-        <NextQueue queue={queue.map(row=>row.post)} onInspect={openXRay}/>
-      </aside></div></div>
+      </aside>
+      <div className="feed-settings"><FeedControls settings={s.settings} onChange={onChange} scope="feed"/></div>
+      </div></div>
       <div hidden={section!==1}><Behind key={inspectionKey} session={s} onChange={onChange} target={inspect}/></div>
       <div hidden={section!==2}><Lab settings={s.settings} onChange={onChange}/></div>
       <div hidden={section!==3}><TimeMachine session={s}/></div>
     </main><span className="travel-signal" aria-hidden="true" ref={signal}/>
     <dialog aria-labelledby="help-title" ref={dialog} onClick={e=>{if(e.target===dialog.current)dialog.current?.close()}}><div className="dialog-head"><h2 id="help-title">How FeedLens works</h2><button aria-label="Close" onClick={()=>dialog.current?.close()}><Icon name="close"/></button></div>
-      <p>Tap <b>Like</b> on the opening post. In <b>Ranking replay</b>, switch between <b>Before</b> and <b>After</b> to compare the candidates. Choose <b>Why this winner?</b> to inspect the top score.</p>
+      <p>Tap <b>Like</b> on a post. Under <b>Up next</b>, switch between <b>Before</b> and <b>After</b> to compare the candidates. Choose <b>Why this winner?</b> to inspect the top score.</p>
       <p><b>Watch</b> sends a signal each second. A dislike or a skip before three seconds lowers interest. Scroll down over the cover or swipe up to advance.</p>
       <p>Open <b>Algorithm Lab</b> to change how the feed learns and ranks. In <b>Time Machine</b>, branch from a past reaction to see how a different signal changes the rankings.</p></dialog>
   </>
@@ -151,12 +160,14 @@ const locationSection = () => window.location.hash.slice(1)
 function App() {
   const [hash, setHash] = useState(locationSection)
   const showWorkspace = sectionIds.includes(hash)
+  const [visitedStory, setVisitedStory] = useState(!showWorkspace)
   const [initial, setInitial] = useState<Session | null>(() => showWorkspace ? fresh() : null)
   const [visit, setVisit] = useState(0)
   useEffect(() => {
     const change = () => {
       const next = locationSection()
       if (sectionIds.includes(next)) setInitial(session => session ?? fresh())
+      else setVisitedStory(true)
       setHash(next)
     }
     window.addEventListener('hashchange', change)
@@ -183,9 +194,9 @@ function App() {
     window.location.hash = 'feed'
   }
   return <>
-    <div id="experiment" hidden={showWorkspace}>
+    {visitedStory && <div id="experiment" hidden={showWorkspace}>
       <PhoneExperiment onExplore={explore}><InstagramAnalyzer/></PhoneExperiment>
-    </div>
+    </div>}
     {initial && <div id="workspace" hidden={!showWorkspace}><Workspace key={visit} initial={initial}/></div>}
   </>
 }

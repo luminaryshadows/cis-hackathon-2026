@@ -36,6 +36,16 @@ export function Behind({session:s,onChange,target}:{session:Session;onChange:(ke
   const row = rows[index]
   const visible = rows.filter((_,i)=>all || i<5 || i===index)
   const list = useRef<HTMLDivElement>(null)
+  const inspectedTitle = useRef<HTMLHeadingElement>(null)
+  function inspect(id: string) {
+    setPicked(id)
+    if (matchMedia('(max-width: 820px)').matches) {
+      requestAnimationFrame(() => {
+        inspectedTitle.current?.focus({preventScroll: true})
+        inspectedTitle.current?.scrollIntoView({block: 'start'})
+      })
+    }
+  }
   const previous = useRef(new Map<string,number>())
   useLayoutEffect(()=>{
     const positions = new Map<string,number>()
@@ -58,21 +68,11 @@ export function Behind({session:s,onChange,target}:{session:Session;onChange:(ke
     .reduce<{event:Session['events'][number];value:number}|undefined>((best,next)=>Math.abs(next.value)>Math.abs(best?.value??0)?next:best,undefined)
   return <div className="bx">
     <div className="bx-grid">
-      <section className="panel bx-board">
-        <header><h2><span className="heading-icon lilac"><Icon name="queue"/></span>Candidate rankings</h2><span>{rows.length} posts</span></header>
-        <p className="bx-context">{inspectCurrent?'The candidates your current post competed against, rescored with your latest signals and settings.':'The unseen posts competing for your next spot. Select one to inspect its score.'}</p>
-        <div className="bx-list" ref={list}>{visible.map(r=><button key={r.post.id} data-id={r.post.id} aria-pressed={r===row} onClick={()=>setPicked(r.post.id)}>
-          <span className="bx-rank">{String(rows.indexOf(r)+1).padStart(2,'0')}</span><img src={art(r.post)} alt=""/>
-          <span className="bx-title"><b>{r.post.title}</b><small>{r.post.topic}</small></span><strong>{number(r.total)}<small>points</small></strong>
-        </button>)}</div>
-        {rows.length>5 && <button className="bx-more" onClick={()=>setAll(!all)} aria-expanded={all}>{all?'Show top five':'Show all '+rows.length+' candidates'} <Icon name="chevron" size={15}/></button>}
-        <div className="bx-lead"><Icon name="spark" size={19}/><Lead rows={rows}/></div>
-      </section>
       <section className="panel bx-inspector">
         <header><h2><span className="heading-icon mint"><Icon name="scan"/></span>Recommendation X-Ray</h2></header>
-        <div className="bx-cover"><img src={art(row.post)} alt=""/><div><small>#{index+1} · {row.post.topic}{row.post.related?' + '+row.post.related:''}</small><h3>{row.post.title}</h3></div></div>
+        <div className="bx-cover"><img src={art(row.post)} alt=""/><div><small>#{index+1} · {row.post.topic}{row.post.related?' + '+row.post.related:''}</small><h3 ref={inspectedTitle} tabIndex={-1}>{row.post.title}</h3></div></div>
         <div className="bx-score"><span>Live score</span><strong>{number(row.total)} <small>pts</small></strong></div>
-        <div className="bx-parts">{factors.map(([key,,label])=><div key={key}><span>{label}</span><span className="bx-track"><i className={row.parts[key]<0?'negative':''} style={{width:Math.abs(row.parts[key])/peak*50+'%'}}/></span><b>{signed(row.parts[key])}</b></div>)}</div>
+        <div className="bx-parts">{factors.map(([key,,label])=><div key={key}><span>{label}</span><span className="bx-track" aria-hidden="true"><i className={row.parts[key]<0?'negative':''} style={{width:Math.abs(row.parts[key])/peak*50+'%'}}/></span><b>{signed(row.parts[key])}</b></div>)}</div>
         {historical && <details className="bx-detail"><summary>When this post was selected</summary><p>It ranked #1 with {number(s.selected.total)} points. Its score then included {factors.map(([key,,label])=>label.toLowerCase()+' '+signed(s.selected.parts[key])).join(', ')}.</p></details>}
         <details className="bx-detail"><summary>How your actions become interests</summary>
           {strongest ? <>
@@ -85,10 +85,20 @@ export function Behind({session:s,onChange,target}:{session:Session;onChange:(ke
           <p>An action changes the main topic’s interest. A related topic receives a quarter of that change. Personalization scales the final match.</p>
         </details>
       </section>
+      <section className="panel bx-board">
+        <header><h2><span className="heading-icon lilac"><Icon name="queue"/></span>Candidate rankings</h2><span>{rows.length} posts</span></header>
+        <p className="bx-context">{inspectCurrent?'The candidates your current post competed against, rescored with your latest signals and settings.':'The unseen posts competing for your next spot. Select one to inspect its score.'}</p>
+        <div className="bx-list" ref={list}>{visible.map(r=><button key={r.post.id} data-id={r.post.id} aria-pressed={r===row} onClick={()=>inspect(r.post.id)}>
+          <span className="bx-rank">{String(rows.indexOf(r)+1).padStart(2,'0')}</span><img src={art(r.post)} alt=""/>
+          <span className="bx-title"><b>{r.post.title}</b><small>{r.post.topic}</small></span><strong>{number(r.total)}<small>points</small></strong>
+        </button>)}</div>
+        {rows.length>5 && <button className="bx-more" onClick={()=>setAll(!all)} aria-expanded={all}>{all?'Show top five':'Show all '+rows.length+' candidates'} <Icon name="chevron" size={15}/></button>}
+        <div className="bx-lead"><Icon name="spark" size={19}/><Lead rows={rows}/></div>
+      </section>
     </div>
     <section className="panel bx-tune"><header><h2><span className="heading-icon peach"><Icon name="sliders"/></span>Tune the ranking</h2></header>
       <p className="bx-context">Move a slider to change the scores here and in Your Feed.</p>
-      <div className="bx-sliders">{factors.map(([key,setting,label,description])=><label key={key}><span>{label}<b>{s.settings[setting]}%</b></span><input type="range" min="0" max="100" value={s.settings[setting]} onChange={e=>onChange(setting,Number(e.target.value))}/><small>{description}</small></label>)}</div>
+      <div className="bx-sliders">{factors.map(([key,setting,label,description])=><label key={key}><span>{label}<b>{s.settings[setting]}%</b></span><input type="range" min="0" max="100" value={s.settings[setting]} aria-label={label} aria-valuetext={s.settings[setting]+'%'} aria-describedby={'ranking-'+key} onChange={e=>onChange(setting,Number(e.target.value))}/><small id={'ranking-'+key}>{description}</small></label>)}</div>
     </section>
   </div>
 }

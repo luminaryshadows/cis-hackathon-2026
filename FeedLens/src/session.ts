@@ -5,7 +5,7 @@ export function fresh() {
   return {
     seen:[posts[0]], selected:rank(neutral(),[],defaults)[0], round:1, seconds:0, playing:false, done:false, events:[] as Interaction[],
     settings:{...defaults}, nextId:1, revision:0, signalTopics:[] as Topic[],
-    note:'Try liking this post. Watch which topic rises.',
+    note:'No signals yet. Every topic starts with equal weight.',
   }
 }
 export type Session = ReturnType<typeof fresh>
