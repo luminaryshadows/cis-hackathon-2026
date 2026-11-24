@@ -182,7 +182,7 @@ dialog b { color: var(--ink); font-weight: 600; }
   .intro-0 { margin-bottom: 17px; }
   .intro-0 h1 { font-size: 48px; }
   .intro-0 p { margin-top: 5px; }
-  .player { max-height: 31svh; }
+  .player { width: 100%; max-height: 35svh; }
   .caption h3 { max-width: none; font-size: 34px; }
   .caption { padding: 10px 0 11px; }
 }
