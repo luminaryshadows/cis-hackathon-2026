@@ -36,6 +36,10 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
   await expectRanking(panel, before)
   await page.getByRole('button', {name: 'Like', exact: true}).press('Enter')
   await expectRanking(panel, after)
+  if (testInfo.project.use.isMobile) {
+    await page.getByRole('button', {name: 'Up next ' + after[0].post.title}).click()
+    await expect(panel.getByRole('heading', {name: 'Up next'})).toBeFocused()
+  }
   await previous.press('Enter')
   await expect(previous).toHaveAttribute('aria-pressed', 'true')
   await expectRanking(panel, before)
@@ -51,13 +55,13 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
     await expect(row).not.toHaveCSS('animation-name', 'none')
   }
 
-  await panel.getByRole('button', {name: 'Why this winner?'}).press('Enter')
+  await panel.getByRole('button', {name: 'Why this post?'}).press('Enter')
   await expect(page.getByRole('heading', {name: 'Behind the Feed'})).toBeVisible()
   await expect(page.getByRole('heading', {name: after[0].post.title})).toBeVisible()
   if (testInfo.project.use.isMobile) {
     await expect(page.getByText('Live score', {exact: true})).toBeInViewport()
   }
-  await expect(page.getByText('Live score', {exact: true}).locator('..')).toContainText(after[0].total.toFixed(2))
+  await expect(page.getByRole('group', {name: 'Live score', exact: true})).toContainText(after[0].total.toFixed(2))
   const inspector = page.getByRole('button', {name: new RegExp(after[0].post.title), pressed: true})
   await expect(inspector).toBeVisible()
 
@@ -65,8 +69,8 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
   await page.getByRole('combobox', {name: 'Alternate action'}).selectOption('remove')
   await page.getByRole('button', {name: 'Save alternate branch'}).press('Enter')
   const branch = page.getByRole('region', {name: 'Branch 1 comparison'})
-  await expect(branch.getByRole('row', {name: 'Gaming 4 0', exact: true})).toBeVisible()
-  await expect(branch.getByRole('row', {name: 'Tech 1 0', exact: true})).toBeVisible()
+  await expect(branch.getByRole('row', {name: 'Earth 4 0', exact: true})).toBeVisible()
+  await expect(branch.getByRole('row', {name: 'Space 1 0', exact: true})).toBeVisible()
   const restored = branch.getByRole('row').filter({has: page.getByRole('rowheader', {name: before[0].post.title})})
   const priorRank = after.findIndex(row => row.post.id === before[0].post.id) + 1
   await expect(restored.getByRole('cell').first()).toHaveText(priorRank + ' → 1')
@@ -83,14 +87,14 @@ test('replay a Like, inspect its winner, and remove it in a separate timeline', 
 test('watching and disliking the same post shows the net learned interest', async ({page}) => {
   await page.clock.install()
   await page.goto('/#feed')
-  await page.getByRole('button', {name: 'Watch', exact: true}).click()
+  await page.getByRole('button', {name: 'Start timer', exact: true}).click()
   await expect(page.getByRole('button', {name: 'Pause', exact: true})).toBeVisible()
   await page.clock.runFor(12_000)
-  await expect(page.getByRole('button', {name: 'Watched', exact: true})).toBeDisabled()
+  await expect(page.getByRole('button', {name: 'Timed', exact: true})).toBeDisabled()
   await page.getByRole('button', {name: 'Dislike', exact: true}).click()
   const balance = page.getByRole('group', {name: 'Watch time versus dislike'})
   await expect(balance).toContainText('Watch time outweighs your dislike.')
-  await expect(balance).toContainText('Gaming +0.2')
+  await expect(balance).toContainText('Earth +0.2')
   await page.getByRole('button', {name: 'Disliked', exact: true}).click()
   await expect(balance).toHaveCount(0)
 })

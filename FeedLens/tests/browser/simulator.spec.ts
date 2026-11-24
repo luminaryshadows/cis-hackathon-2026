@@ -1,7 +1,10 @@
 import {test, expect} from '@playwright/test'
+import {resolve} from 'node:path'
+import {pathToFileURL} from 'node:url'
+import {posts} from '../../src/catalog.ts'
 
 const sections = [
-  ['feed', 'Your Feed', 'Now playing'],
+  ['feed', 'Your Feed', 'World in photos'],
   ['behind', 'Behind the Feed', 'Recommendation X-Ray'],
   ['lab', 'Algorithm Lab', 'Does watching mean liking?'],
   ['history', 'Time Machine', 'Interaction timeline'],
@@ -43,7 +46,7 @@ test('navigate with the keyboard, open and dismiss help, and reset the session',
   await history.press('Enter')
   await expect(page).toHaveURL(/#history$/)
   await expect(page.getByRole('heading', {level: 1, name: 'Time Machine'})).toBeFocused()
-  await expect(page.getByRole('button', {name: /Liked .*Pocket-sized nostalgia/})).toBeVisible()
+  await expect(page.getByRole('button', {name: /Liked .*Svalbard turns a laser on passing satellites/})).toBeVisible()
 
   await page.goBack()
   await expect(page.getByRole('button', {name: 'Liked', exact: true, pressed: true})).toBeVisible()
@@ -68,5 +71,31 @@ test('navigate with the keyboard, open and dismiss help, and reset the session',
   await expect(page.getByRole('heading', {level: 1, name: 'Your Feed'})).toBeFocused()
   await expect(page.getByRole('button', {name: 'Like', exact: true, pressed: false})).toBeVisible()
   await history.press('Enter')
-  await expect(page.getByRole('button', {name: /Liked .*Pocket-sized nostalgia/})).toHaveCount(0)
+  await expect(page.getByRole('button', {name: /Liked .*Svalbard turns a laser on passing satellites/})).toHaveCount(0)
+})
+
+test('every story in the portable edition has a local photograph, source, date and credit', async ({page, context}) => {
+  const requests: string[] = []
+  page.on('request', request => {
+    if (/^https?:/.test(request.url())) requests.push(request.url())
+  })
+  await context.setOffline(true)
+  await page.goto(pathToFileURL(resolve('..', 'FeedLens.html')).href + '#feed')
+  const feed = page.getByRole('article', {name: 'Feed'})
+  const remaining = new Set(posts.map(post => post.title))
+  for (let i = 0; i < posts.length; i++) {
+    const title = await feed.locator('.caption h3').innerText()
+    const story = posts.find(post => post.title === title)!
+    expect(remaining.delete(title)).toBe(true)
+    const photo = feed.getByRole('img', {name: story.alt, exact: true})
+    await expect(photo).toHaveAttribute('src', /^data:image\/webp;base64,/)
+    await expect.poll(() => photo.evaluate(el => (el as HTMLImageElement).naturalWidth)).toBeGreaterThan(0)
+    await expect(feed.locator('.post-credit a')).toHaveAttribute('href', story.sourceUrl)
+    await expect(feed.locator('.post-credit time')).toHaveAttribute('datetime', story.published)
+    await expect(feed.getByRole('link', {name: story.photoCredit, exact: true})).toHaveAttribute('href', story.photoUrl)
+    await feed.getByRole('button', {name: 'Skip', exact: true}).click()
+  }
+  await expect(feed.getByRole('heading', {name: 'Round complete'})).toBeVisible()
+  expect(remaining.size).toBe(0)
+  expect(requests).toEqual([])
 })

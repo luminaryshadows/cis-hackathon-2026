@@ -7,7 +7,7 @@ The `feedlens-demo` branch contains the working app in [FeedLens](FeedLens/) and
 
 ## Try the branch demo
 
-Scroll past the phone to add up to 12 seconds of watch time, or set **Watch time** yourself to keep a chosen duration. Follow the points from one disliked gaming post through **Signals**, **Learning**, **Scoring** and **Ranking**. A full watch adds 4.2 points. The dislike subtracts 4, leaving Gaming at +0.2. Each chapter uses the same ranking engine as the simulator.
+Scroll past the phone to add up to 12 seconds of watch time, or set **Watch time** yourself to keep a chosen duration. Follow the points from one disliked Earth story through **Signals**, **Learning**, **Scoring** and **Ranking**. A full watch adds 4.2 points. The dislike subtracts 4, leaving Earth at +0.2. Each chapter uses the same ranking engine as the simulator.
 
 Choose **Instagram** to compare the accounts in your own viewing history with the accounts whose posts you liked or saved. **Try example data** runs the same analysis with a fictional export. To use your own, request a JSON export from Instagram and choose its ZIP, all ZIP parts together, or the extracted activity files. The report runs entirely in the tab. It shows counts, dates and the most frequent named accounts for the activity Instagram included. The files do not contain the original ranking scores. [Instagram export instructions](https://help.instagram.com/181231772500920)
 
@@ -19,7 +19,7 @@ Run the branch locally with the commands below, or download **FeedLens-preview**
 
 ## The one-sentence pitch
 
-FeedLens lets you train a simulated short-video feed and trace how a watch, like, dislike or skip
+FeedLens lets you train a recommendation model on real photo stories and trace how a watch, like, dislike or skip
 changes your next recommendation.
 
 ---
@@ -41,8 +41,8 @@ FeedLens makes that link visible, and computable.
   broken into its four components, and the exact event that produced those points.
 - **The thing they had not thought to ask about:** *can watching a post long enough raise your
   interest in its topic even after you tap Dislike?* Every dislike costs 4 points and every second
-  watched earns 0.35, so anything past **11.4 seconds outvotes the dislike** — and the longest posts
-  run 16 seconds. The Experiment Lab is built around that question and computes the crossover live
+  watched earns 0.35, so anything past **11.4 seconds outvotes the dislike** — and the timer
+  runs for up to 12 seconds. The Experiment Lab is built around that question and computes the crossover live
   rather than asserting it.
 
 ---
@@ -52,12 +52,12 @@ FeedLens makes that link visible, and computable.
 Four connected sections, one shared session, all state in the browser.
 
 ### Your Feed
-A simulated player over a 32-post catalog. Watch (the clock runs), like, dislike, or skip.
+A dated edition of 16 real photo stories. Like a story, dislike it, start the reading timer, or skip.
 Advancing before three seconds without a reaction is recorded as a quick skip. The topic profile,
 the ranked queue and the candidate list all update from what you just did.
 
 ### Behind the Feed (Algorithm X-Ray)
-Select any candidate and see its score split into **interest match**, **popularity**,
+Select any candidate and see its score split into **interest match**, **edition order**,
 **exploration** and **diversity**. The panel names the single recorded event with the largest
 contribution to that post's interest score — not a summary of your history, but the specific
 action that put this post here.
@@ -67,7 +67,7 @@ Three predict-and-reveal experiments, each computed from the same engine the liv
 inputs isolated from your session so an experiment cannot corrupt the feed you are watching:
 
 - **Watch versus dislike** — how many seconds of watch time does it take to outvote a dislike?
-- **The gaming loop** — like every Gaming post and watch the topic entrench itself, then see how
+- **The Earth loop** — like every Earth story and watch the topic entrench itself, then see how
   much share it holds.
 - **Escaping the loop** — raise exploration and diversity and see whether a different topic can
   reach the top three.
@@ -103,7 +103,7 @@ apply at the default of 50.
 
 ```
 interest match = (main topic weight + ¼ × related weight) × Personalization ÷ 100
-popularity     = fixed catalog discovery value            × Popularity      ÷ 100
+edition order  = editorial starting weight                × Edition order      ÷ 100
 exploration    = 2 ÷ (1 + times this topic appeared)       × Exploration     ÷ 100
 diversity      = −4 × occurrences in the last three posts  × Content diversity ÷ 100
 ```
@@ -122,11 +122,11 @@ outcome and every score breakdown.
 
 Judges and interviews will probe this, so it is written down rather than discovered.
 
-- The simulator uses a hand-built catalog of 32 posts, topics and discovery values. Its scores come from the visitor’s simulated actions. The optional Instagram report uses only the activity files the visitor selects and never changes the simulator’s history.
+- The simulator uses a dated edition of 16 sourced photo stories covering Earth, Cities, Space and Sport. Its scores come from the visitor’s simulated actions. The optional Instagram report uses only the activity files the visitor selects and never changes the simulator’s history.
 - Weights accumulate and never decay, so a long history can outweigh recent actions. The original
   projection with a decay term is P2 on the roadmap.
 - Session history and Time Machine branches live in browser memory; a reload clears them.
-- The player is simulated — the clock is the signal, not a video being decoded.
+- The reading timer measures time spent with each photograph and passes it to the watch-time model.
 - This is a small, inspectable model of a feedback loop. It is not a reproduction of any real
   platform's recommender, and the numbers describe this catalog only.
 
@@ -178,14 +178,14 @@ index.html          placeholder page still served at the scaffold URL
 
 ```
 src/engine.ts       learning, weighting, scoring, ranking — no DOM, no React
-src/catalog.ts      32 posts across 8 topics, with related tags and discovery values
+src/catalog.ts      16 dated photo stories across four topics, with sources and photo credits
 src/session.ts      the live feed state machine: reactions, ticks, round advance
 src/history.ts      forking and replaying an edited history
 src/experiments.ts  the three Lab scenarios
 src/main.tsx        shell and section routing
 src/{XRay,TimeMachine,Lab,LivePanels}.tsx   the four sections
 tests/              engine, history and experiment tests
-public/art/         32 illustrated post covers
+public/photos/      Local editorial photographs for the edition
 ```
 
 ---

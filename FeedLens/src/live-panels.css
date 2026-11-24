@@ -4,39 +4,23 @@
   border-color: var(--line);
 }
 #workspace .interest-profile h2 { font: 500 28px/1 'Phone STIX', Georgia, serif; letter-spacing: -.035em; }
-.interest-profile .signal-note {
+.profile-caption, .interest-profile .signal-note {
   margin: 8px 0 12px;
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.45;
 }
-.interest-profile .has-signal { color: var(--copper); }
-.has-signal .signal-content { display: block; animation: signal-arrive .34s ease-out; }
-@keyframes signal-arrive { from { opacity: .6; transform: translateY(3px); } }
-.interest-profile .view-switch {
-  display: flex;
-  gap: 8px;
-  margin: 0 0 8px;
-}
-.view-switch button {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 36px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  color: var(--muted);
-  background: transparent;
-  font-size: 13px;
-}
-.interest-profile .view-switch button[aria-pressed=true] {
-  border-color: var(--line);
+.interest-profile .signal-note {
+  padding: 7px 11px;
+  border-inline-start: 2px solid var(--copper);
+  background: #201a16;
   color: var(--ink);
-  background: #292624;
 }
+.interest-profile .signal-note strong { color: var(--copper); }
+.has-signal .signal-content { display: block; animation: signal-arrive .25s ease-out; }
+@keyframes signal-arrive { from { opacity: .6; } }
 .interest-bars {
-  --row-height: 26px;
+  --row-height: 29px;
   position: relative;
   height: calc(var(--topics) * var(--row-height));
   list-style: none;
@@ -48,15 +32,14 @@
   inset: 0 0 auto;
   height: var(--row-height);
   display: grid;
-  grid-template-columns: 113px minmax(0, 1fr) 42px;
+  grid-template-columns: 70px minmax(0, 1fr) 48px;
   align-items: center;
   gap: 8px;
   transform: translateY(calc(var(--rank) * 100%));
   transition: transform .85s var(--phone-spring);
 }
 .interest-row .topic-label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
-.interest-row .topic-label svg { color: var(--muted); flex: none; }
-.interest-row b, .interest-delta, .star-detail { font-variant-numeric: tabular-nums; }
+.interest-row b, .star-detail { font-variant-numeric: tabular-nums; }
 .interest-row b { font-size: 12px; font-weight: 600; text-align: right; }
 .interest-meter { position: relative; display: block; }
 .interest-meter .track { display: block; height: 5px; background: #332d29; }
@@ -67,26 +50,6 @@
   transition: width .45s ease-out;
 }
 .interest-row[data-changed] .track i { background: var(--copper); }
-.interest-delta {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  white-space: nowrap;
-  color: var(--copper);
-  background: var(--paper);
-  padding-inline: 3px;
-  font-size: 11px;
-  font-weight: 650;
-  transform: translateY(-50%);
-  pointer-events: none;
-  animation: interest-delta 1.5s ease-out both;
-}
-.interest-delta.loss { color: #f5a799; }
-@keyframes interest-delta {
-  0% { opacity: 0; transform: translateY(-15%); }
-  12%, 78% { opacity: 1; transform: translateY(-50%); }
-  100% { opacity: 0; transform: translateY(-95%); }
-}
 .sky { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 .star-map { width: 100%; display: block; }
 .star-map line { stroke: #66564d; stroke-width: 1; }
@@ -128,5 +91,21 @@
 .watch-balance-values span:last-child b { color: var(--copper); }
 @media (max-width: 720px) {
   #workspace .interest-profile { padding-inline: 14px; }
-  .view-switch button { min-height: 44px; }
+  #workspace .interest-profile h2 { font-size: 25px; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .has-signal .signal-content { animation: none; }
+  .interest-row, .interest-meter .track i, .star, .star circle { transition: none; }
+}
+.profile-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.profile-view {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  min-height: 36px;
+  padding: 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.profile-view[aria-pressed=true] { background: #292624; color: var(--ink); }
+@media (max-width: 720px) { .profile-view { min-height: 44px; } }

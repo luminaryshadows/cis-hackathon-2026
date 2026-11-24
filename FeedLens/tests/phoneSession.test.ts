@@ -13,11 +13,11 @@ test('scrubbing rebuilds one paused visit using the same watch and dislike as th
       ? [['watch', seconds], ['dislike', seconds]] : [['dislike', 0]])
     assert.ok(session.events.every(e => e.visit === 1 && e.postId === currentPost(session).id))
     const profile = replay(session.events, session.settings)
-    assert.ok(Math.abs(profile.Gaming - (0.35 * seconds - 4)) < 1e-10)
-    assert.equal(profile.Tech, profile.Gaming / 4)
+    assert.ok(Math.abs(profile.Earth - (0.35 * seconds - 4)) < 1e-10)
+    assert.equal(profile.Space, profile.Earth / 4)
     const winner = rank(profile, session.seen, session.settings)[0]
-    if (seconds === 0) assert.equal(winner.post.id, 'eclipse')
-    if (seconds === 12) assert.equal(winner.post.id, 'synth')
+    if (seconds === 0) assert.equal(winner.post.id, 'kwu-tung-railway')
+    if (seconds === 12) assert.equal(winner.post.id, 'escapade-earth-flyby')
   }
 })
 

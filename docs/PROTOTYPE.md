@@ -39,7 +39,7 @@ off-screen.
 | File | Responsibility |
 |------|----------------|
 | `src/engine.ts` | Learning (`learn`, `eventWeight`), history replay (`replay`), display shares (`shares`), scoring and ordering (`rank`), event attribution (`eventContribution`), and the slider defaults. Roughly 90 lines of logic. |
-| `src/catalog.ts` | The fixed catalog: 32 posts across 8 topics, each with a duration, a discovery value, and an optional related topic. `postById` is a lookup map built once. |
+| `src/catalog.ts` | The dated photo edition has 16 sourced stories across four topics. Each has an editorial starting position and a reading timer. `postById` is a lookup map built once. |
 | `src/session.ts` | The state machine. `fresh()` builds a new session; `update()` is a reducer over actions (`like`, `dislike`, `next`, `play`, `pause`, `tick`, `setting`, `remove`, `round`, `reset`). Owns the rules that make the numbers meaningful: a quick skip only counts before 3 seconds, a repeated reaction removes rather than doubles, a new round keeps the learned profile. |
 | `src/history.ts` | `forkHistory()` produces an edited copy of the event list; `readHistory()` replays a given list into a profile and a ranking. Used by Time Machine so both timelines run the identical code path. |
 | `src/experiments.ts` | The three Lab scenarios as pure functions returning before/after rankings, so an experiment's answer is computed the same way the live feed's is. |
@@ -58,14 +58,14 @@ with no browser, and an interview answer about the scoring never needs to involv
 | `src/XRay.tsx` | Candidate list, score-component bars, and the event-attribution panel. |
 | `src/Lab.tsx` | Slider controls plus the three predict-and-reveal experiments. |
 | `src/TimeMachine.tsx` | Event timeline, edit controls, and the original-versus-alternate comparison. |
-| `src/Icon.tsx`, `src/art.ts` | Icon set and the mapping from post id to its cover illustration. |
+| `src/Icon.tsx`, `src/art.ts` | Icon set and the mapping from post id to its photograph. |
 | `src/*.css` | One stylesheet per section plus a shared base; no CSS framework. |
 
 ### Assets and build
 
 | Path | Purpose |
 |------|---------|
-| `public/art/*.webp` | 32 illustrated post covers, one per catalog entry. |
+| `public/photos/*.webp` | 16 credited news photographs, one per catalog entry. |
 | `scripts/portable.mjs` | Inlines the build into a single standalone `FeedLens.html`, so the demo can run from a file with no server. |
 | `.github/workflows/pages.yml` | Builds with Vite and publishes to GitHub Pages on every push to `main`. |
 
@@ -86,7 +86,7 @@ plausible-looking feed that is quietly incorrect:
    each other, and a skip is counted once.
 5. Removing individual events replays the remainder, and tuning settings leaves the current post in
    place.
-6. All 32 posts appear exactly once per round, and a new round preserves learning while resetting
+6. All edition stories appear exactly once per round, and a new round preserves learning while resetting
    reaction state.
 
 The history and experiment suites cover branch isolation and the three Lab outcomes. Test 3 is the
@@ -102,7 +102,7 @@ Carried over from [ALGORITHM.md](ALGORITHM.md) because they will be asked about:
 - The catalog, topics, durations and discovery values are authored by hand. No real platform data.
 - Weights accumulate without decay, so long histories can outweigh recent actions.
 - Session history and Time Machine branches are in memory only; a reload starts fresh.
-- The "player" is a timer, not video decoding. Watch time is the signal being modelled.
+- The reading timer supplies the watch-time signal while the visitor views a photograph.
 - The model is a small inspectable feedback loop, not a reproduction of any real recommender.
 
 Anything added from here should either deepen the mechanism (decay, a second ranking strategy) or

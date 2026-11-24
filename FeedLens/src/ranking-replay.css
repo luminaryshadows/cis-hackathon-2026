@@ -22,9 +22,9 @@
 }
 .replay-switch button[aria-pressed=true] { color: var(--ink); background: #292624; }
 .replay-switch button:disabled { opacity: .55; cursor: default; }
-.replay-caption, .replay-result { font-size: 13px; line-height: 1.4; margin: 8px 0 10px; }
+.replay-caption, .replay-result { font-size: 14px; line-height: 1.45; margin: 8px 0 10px; }
 .replay-caption { color: var(--muted); }
-.replay-result { color: var(--ink); }
+.replay-result { color: var(--ink); border-inline-start: 2px solid var(--copper); padding-inline-start: 10px; }
 .ranking-replay ol {
   --row-height: 58px;
   position: relative;
@@ -39,7 +39,7 @@
   inset: 0 0 auto;
   height: var(--row-height);
   transform: translateY(calc(var(--place) * 100%));
-  transition: transform .85s var(--phone-spring);
+  transition: transform .26s ease-out;
   animation: replay-enter .5s var(--phone-spring);
 }
 @keyframes replay-enter { from { opacity: .2; translate: 6px 0; } }
@@ -96,4 +96,7 @@
   #workspace .ranking-replay { padding-inline: 14px; }
   .replay-switch button, .replay-inspect { min-height: 44px; }
   .replay-row { grid-template-columns: 23px 50px minmax(0, 1fr) auto; gap: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ranking-replay li { animation: none; transition: none; }
 }

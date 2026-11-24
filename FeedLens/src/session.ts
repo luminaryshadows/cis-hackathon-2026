@@ -2,8 +2,9 @@ import {defaults, eventWeight, posts, neutral, rank, replay} from './engine.ts'
 import type {Interaction, Kind, Settings, Topic} from './engine.ts'
 
 export function fresh() {
+  const selected = rank(neutral(), [], defaults)[0]
   return {
-    seen:[posts[0]], selected:rank(neutral(),[],defaults)[0], round:1, seconds:0, playing:false, done:false, events:[] as Interaction[],
+    seen:[selected.post], selected, round:1, seconds:0, playing:false, done:false, events:[] as Interaction[],
     settings:{...defaults}, nextId:1, revision:0, signalTopics:[] as Topic[],
     note:'No signals yet. Every topic starts with equal weight.',
   }
@@ -38,7 +39,7 @@ function record(s:Session,kind:Kind):Session {
   } else if (previous?.kind!==kind) {
     events.push({id:nextId++, postId:post.id, visit:visit(s), kind, seconds:kind==='watch'?1:s.seconds})
   }
-  const note = previous?.kind===kind ? 'Reaction removed. Memory replayed.' :
+  const note = previous?.kind===kind ? 'Reaction removed. Your interests have been recalculated.' :
     ({like:'Liked',dislike:'Disliked',skip:'Quick skip on',watch:'Watched '+(s.seconds+1)+'s of'})[kind]+' “'+post.title+'”.'
   return {...s,events,nextId,revision:s.revision+1,note,signalTopics:post.related?[post.topic,post.related]:[post.topic]}
 }
@@ -47,11 +48,11 @@ export function update(s:Session,action:Action):Session {
   if (action.type==='setting') {
     const settings = {...s.settings,[action.key]:action.value}
     const learning = ['watchTime','explicitFeedback','learningSpeed'].includes(action.key)
-    return {...s,settings,signalTopics:[],note:learning?'Memory replayed with your learning settings.':'Upcoming posts ranked with your new settings.',revision:s.revision+1}
+    return {...s,settings,signalTopics:[],note:learning?'Your past reactions have been scored again with these settings.':'Upcoming posts ranked with your new settings.',revision:s.revision+1}
   }
   if (action.type==='remove') {
     if (!s.events.some(e=>e.id===action.id)) return s
-    return {...s,events:s.events.filter(e=>e.id!==action.id),signalTopics:[],note:'Interaction removed. Memory replayed.',revision:s.revision+1}
+    return {...s,events:s.events.filter(e=>e.id!==action.id),signalTopics:[],note:'Interaction removed. Your interests have been recalculated.',revision:s.revision+1}
   }
   if (action.type==='round' && s.done) {
     const first = rank(replay(s.events,s.settings),[],s.settings)[0]

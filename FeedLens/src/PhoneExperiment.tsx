@@ -51,7 +51,7 @@ function Turntable({target}: {target: number}) {
     return () => { cancelAnimationFrame(request); motion.removeEventListener('change', follow) }
   }, [target])
 
-  return <div className="pe-phone" role="img" aria-label="Phone rotating from the gaming post on its display to its rear cameras" data-frame={frame}>
+  return <div className="pe-phone" role="img" aria-label="Phone rotating from the opening Earth photograph to its rear cameras" data-frame={frame}>
     {strips.map((url, i) => <img key={url} src={url} alt="" hidden={i !== Math.floor(frame / 6)}
       draggable={false} style={{left: -(frame % 6) * 100 + '%'}}/>)}
   </div>
@@ -61,7 +61,7 @@ const chapterNames = ['Signals', 'Learning', 'Scoring', 'Ranking']
 const chapterIds = ['signals', 'learning', 'scoring', 'ranking']
 const factors = [
   ['relevance', 'Interest match'],
-  ['popularity', 'Popularity'],
+  ['popularity', 'Edition order'],
   ['exploration', 'Exploration'],
   ['diversity', 'Repeat penalty'],
 ] as const
@@ -154,7 +154,7 @@ export function PhoneExperiment({onExplore, children}: {onExplore: (seconds: num
   const captions = [
     <>You disliked “{post.title}”. That subtracts {Math.abs(penalty)} points. Each second you watched adds {perSecond} back.</>,
     <>This post is tagged {post.topic} and {related}. The model adds the full signal to {post.topic} and a quarter of it to {related}.</>,
-    <>The model adds interest match, popularity and an exploration boost. It deducts points for topics shown recently. Here’s the current winner’s breakdown.</>,
+    <>The model adds interest match, edition order and a boost for less-seen topics. It deducts points for topics shown recently. Here’s the current winner’s breakdown.</>,
     <>Which post comes next? {changedWinner
       ? <>The watch boosts {related} interest, and “{winner.post.title}” moves into first place.</>
       : <>At {seconds} seconds, “{winner.post.title}” stays in first place.</>}</>,
@@ -171,7 +171,7 @@ export function PhoneExperiment({onExplore, children}: {onExplore: (seconds: num
     <div className="pe-stage" ref={stage}>
       <div className="pe-story">
         <h1>Inside your feed.</h1>
-        <p>You disliked this gaming post. Scroll to add watch time, or set it yourself. See which post the feed recommends next.</p>
+        <p>Suppose you dislike this Earth story but keep looking at the photo. Scroll to spend more time with it. Which signal will shape the next recommendation?</p>
       </div>
       <Turntable target={seconds / post.duration * lastFrame}/>
       <div className="pe-control">
@@ -189,7 +189,7 @@ export function PhoneExperiment({onExplore, children}: {onExplore: (seconds: num
     </div>
     <section className="pe-results" data-ui aria-label="Experiment results" aria-live={chosenSeconds === null ? 'off' : 'polite'} aria-atomic="true">
       <div className="pe-interest"><span>{post.topic} interest</span><div>
-        <output aria-label="Gaming interest">{signed(net)}</output>
+        <output aria-label={post.topic + ' interest'}>{signed(net)}</output>
         <strong>{net > 0 ? 'Watch time wins.' : net < 0 ? 'The dislike wins.' : 'The signals balance.'}</strong>
       </div></div>
       <div className="pe-recommendation" role="group" aria-label="Next recommendation">

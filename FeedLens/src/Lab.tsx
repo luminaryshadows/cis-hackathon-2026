@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
-import {postById} from './engine'
+import {posts} from './engine'
 import type {Ranked, Settings} from './engine'
-import {watchPost, gamingPosts, watchExperiment, loopExperiment, escapeExperiment} from './experiments'
+import {watchPost, earthPosts, watchExperiment, loopExperiment, escapeExperiment} from './experiments'
 import {art} from './art'
 import {Icon} from './Icon'
 import './lab.css'
@@ -16,7 +16,7 @@ const groups: {name: string; controls: [keyof Settings, string, string][]}[] = [
     ['personalization', 'Personalization', 'Favor posts that match your learned interests.'],
     ['exploration', 'Exploration', 'Boost topics shown less often this round.'],
     ['diversity', 'Content diversity', 'Lower the rank of topics in your last three posts.'],
-    ['popularity', 'Popularity', 'Give popular posts a higher starting score.'],
+    ['popularity', 'Edition order', 'Give stories featured earlier in this edition a higher starting score.'],
   ]},
 ]
 
@@ -34,9 +34,9 @@ function Slider({id, label, value, max = 100, unit = '%', hint, onChange}: {
 }
 
 const experiments = [
-  {title: 'Does watching mean liking?', image: watchPost, icon: 'eye', question: 'You watch a science clip and tap Dislike. Which way will your science interest move?', choices: ['Down', 'No change', 'Up']},
-  {title: 'The Feedback Loop', image: gamingPosts[0], icon: 'reset', question: 'After you like gaming posts, how many of the top three picks in a fresh round will be gaming?', choices: ['None', 'One', 'Two', 'Three']},
-  {title: 'Escape Your Feed', image: postById.get('plant')!, icon: 'spark', question: 'You liked two gaming posts in a row. Can another topic take the top spot when you change the ranking settings?', choices: ['Gaming stays first', 'Another topic wins']},
+  {title: 'Does watching mean liking?', image: watchPost, icon: 'eye', question: 'You spend time on a space photo, then tap Dislike. Will the feed raise or lower your interest in space?', choices: ['Down', 'No change', 'Up']},
+  {title: 'The Feedback Loop', image: earthPosts[0], icon: 'reset', question: 'After you like Earth stories, how many of the top three picks in a fresh round will be about Earth?', choices: ['None', 'One', 'Two', 'Three']},
+  {title: 'Escape Your Feed', image: posts.find(post => post.topic === 'Cities')!, icon: 'spark', question: 'You liked two Earth stories in a row. Can another topic take the top spot when you change the ranking settings?', choices: ['Earth stays first', 'Another topic wins']},
 ]
 const signed = new Intl.NumberFormat('en', {signDisplay: 'exceptZero', maximumFractionDigits: 2})
 const formatPoints = (n: number) => signed.format(n)
@@ -62,22 +62,22 @@ function Experiment({index}: {index: number}) {
     outcome = Math.sign(data.net) + 1
     controls = <><Slider id="sandbox-watch" label="Time watched" value={seconds} max={watchPost.duration} unit="s" onChange={setSeconds}/>
       <label className="lab-check"><input type="checkbox" checked={dislike} onChange={e => setDislike(e.target.checked)}/> Tap Dislike after watching</label></>
-    result = <><div className="lab-equation">{[['Watch', data.watch], ['Dislike', data.reaction], ['Science interest', data.net]].map(([label, value]) =>
+    result = <><div className="lab-equation">{[['Watch', data.watch], ['Dislike', data.reaction], ['Space interest', data.net]].map(([label, value]) =>
       <div key={label}><small>{label}</small><b>{formatPoints(Number(value))}</b></div>)}</div>
-      <p>{data.net > 0 ? 'The model reads time spent watching as interest.' : data.net < 0 ? 'The dislike outweighs the time spent watching.' : 'These inputs leave science interest unchanged.'} Try dragging the watch time to see when the result changes.</p></>
+      <p>{data.net > 0 ? 'The model reads time spent watching as interest.' : data.net < 0 ? 'The dislike outweighs the time spent watching.' : 'These inputs leave interest in space unchanged.'} Try dragging the watch time to see when the result changes.</p></>
   } else if (index === 1) {
     const data = loopExperiment(likes)
-    outcome = data.after.filter(row => row.post.topic === 'Gaming').length
-    controls = <Slider id="sandbox-likes" label="Gaming posts liked" max={gamingPosts.length} unit="" value={likes} onChange={setLikes}/>
+    outcome = data.after.filter(row => row.post.topic === 'Earth').length
+    controls = <Slider id="sandbox-likes" label="Earth stories liked" max={earthPosts.length} unit="" value={likes} onChange={setLikes}/>
     result = <><div className="lab-rank-pair"><Ranking label="Before any likes" rows={data.before}/><Ranking label={'After ' + likes + (likes === 1 ? ' like' : ' likes')} rows={data.after}/></div>
-      <p>Gaming holds {data.share}% of learned interest. {outcome} of the next three picks match it. Each gaming like makes matching posts score higher in the new round.</p></>
+      <p>Earth holds {data.share}% of learned interest. {outcome} of the next three picks match it. Each like on an Earth story makes matching posts score higher in the new round.</p></>
   } else {
     const data = escapeExperiment(exploration, diversity)
-    outcome = Number(data.after[0].post.topic !== 'Gaming')
+    outcome = Number(data.after[0].post.topic !== 'Earth')
     controls = <><Slider id="sandbox-explore" label="Exploration" value={exploration} onChange={setExploration}/>
       <Slider id="sandbox-diversity" label="Content diversity" value={diversity} onChange={setDiversity}/></>
     result = <><div className="lab-rank-pair"><Ranking label="Both controls at 0%" rows={data.before}/><Ranking label="Your settings" rows={data.after}/></div>
-      <p>{data.after[0].post.title} takes first place. Exploration boosts topics seen less often. Diversity deducts points from recently seen topics, including Gaming.</p></>
+      <p>{data.after[0].post.title} takes first place. Exploration boosts topics seen less often. Diversity deducts points from recently seen topics, including Earth.</p></>
   }
   return <article className="lab-experiment panel">
     <header><img src={art(experiment.image)} alt=""/><div><span className="lab-scope">Isolated sandbox</span><h2>{experiment.title}</h2></div></header>

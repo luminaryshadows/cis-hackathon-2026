@@ -1,6 +1,7 @@
 import React, {useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState} from 'react'
 import {createRoot} from 'react-dom/client'
 import {posts, rank, replay} from './engine'
+import {displayDate, editionDate} from './catalog'
 import type {Post} from './engine'
 import {currentPost, fresh, reaction, update} from './session'
 import type {Session} from './session'
@@ -20,7 +21,7 @@ import './style.css'
 const time = (seconds:number) => '0:'+String(seconds).padStart(2,'0')
 
 const sections = [
-  {name:'Your Feed', short:'Feed', subtitle:'Try a like or a longer watch. See which post rises to the top.'},
+  {name:'Your Feed', short:'Feed', subtitle:'Like a story and see what moves up next. Start the timer to see how reading time counts, too.'},
   {name:'Behind the Feed', short:'Behind', subtitle:'Pick a post to trace its score back to your actions.'},
   {name:'Algorithm Lab', short:'Lab', subtitle:'Predict the next recommendation, then put the model to the test.'},
   {name:'Time Machine', short:'Time Machine', subtitle:'Change one past action and see how your feed could have turned out.'},
@@ -120,27 +121,37 @@ function Workspace({initial}:{initial:Session}) {
       <p>{sections[section].subtitle}</p></div>
       </section>
       <div hidden={section!==0}><div className="layout">
-        <article className="feed" aria-label="Feed"><div className="feed-heading"><h2>Now playing</h2>
-          <span className="counter">{s.round>1?'Round '+s.round+' · ':''}Post <b>{String(s.seen.length).padStart(2,'0')}</b> / {posts.length}</span></div>
+        <article className="feed" aria-label="Feed"><div className="feed-heading"><h2>World in photos</h2>
+          <span className="counter"><time dateTime={editionDate}>{displayDate(editionDate)}</time> edition</span></div>
           {s.done ? <div className="finish"><Icon name="eye" size={44}/><h2>Round complete</h2><p>You’ve seen all {posts.length} posts. Start another round with the interests you’ve trained.</p><button className="reset" onClick={()=>dispatch({type:'round'})}><Icon name="play" size={16}/>Start new round</button></div> :
           <><div className="player" ref={player} aria-label={post.title}>
-            <img key={post.id} className="poster" src={art(post)} alt="" style={{animationPlayState:s.playing?'running':'paused'}}/>
+            <img key={post.id} className="poster" src={art(post)} alt={post.alt}/>
             <span className="badge"><Icon name={post.topic.toLowerCase()} size={17}/>{post.topic}</span>
-            <span className="duration">{time(s.seconds)} / {time(post.duration)}</span>
+            <span className="duration" aria-label={s.seconds+' of '+post.duration+' seconds spent reading'}><Icon name="clock" size={15}/>{time(s.seconds)} / {time(post.duration)}</span>
             <div className="progress"><i style={{width:100*s.seconds/post.duration+'%'}}/></div>
           </div>
-          <div className="caption" key={post.id+'caption'}><h3>{post.title}</h3><div className="post-credit"><span>@{post.creator}</span>
-            <button className="why" onClick={()=>openXRay(post)}>Why am I seeing this? <span aria-hidden="true">↗</span></button></div></div>
+          <div className="caption" key={post.id+'caption'}>
+            <div className="post-credit"><a href={post.sourceUrl} target="_blank" rel="noreferrer" aria-label={'Read “'+post.title+'” from '+post.publisher+' (opens in a new tab)'}>{post.publisher} <span aria-hidden="true">↗</span></a><span aria-hidden="true">·</span><time dateTime={post.published}>{displayDate(post.published)}</time></div>
+            <h3>{post.title}</h3><p className="story-summary">{post.summary}</p>
+          </div>
           <div className="actions" ref={actionBar}>
-          <button className="watch" disabled={s.seconds>=post.duration} onClick={()=>dispatch({type:'play'})}><Icon name={s.playing?'pause':'play'} size={17}/>{s.playing?'Pause':s.seconds>=post.duration?'Watched':'Watch'}</button>
           <button className={'like '+(feedback==='like'?'liked':'')} aria-pressed={feedback==='like'} onClick={()=>dispatch({type:'like'})}><Icon name="heart" size={19}/>{feedback==='like'?'Liked':'Like'}</button>
           <button className="dislike" aria-pressed={feedback==='dislike'} onClick={()=>dispatch({type:'dislike'})}><Icon name="dislike" size={17}/>{feedback==='dislike'?'Disliked':'Dislike'}</button>
+          <button className="watch" disabled={s.seconds>=post.duration} onClick={()=>dispatch({type:'play'})}><Icon name={s.playing?'pause':'clock'} size={17}/>{s.playing?'Pause':s.seconds>=post.duration?'Timed':'Start timer'}</button>
           <button className="skip" onClick={next}>{feedback||s.seconds>=3?'Next':'Skip'}<Icon name="skip" size={16}/></button></div>
+          {s.revision > 0 && queue.length > 0 && <button className="next-preview" onClick={() => document.getElementById('up-next-title')?.focus()}>
+            <span>Up next</span><strong>{queue[0].post.title}</strong><span aria-hidden="true">↓</span>
+          </button>}
           <WatchDislike session={s}/>
+          <div className="story-notes">
+            <p>Photo · <a href={post.photoUrl} target="_blank" rel="noreferrer">{post.photoCredit}</a>
+              {' · '}{post.licenseUrl ? <a href={post.licenseUrl} target="_blank" rel="noreferrer">{post.photoLicense}</a> : post.photoLicense}</p>
+            <button className="why" onClick={()=>openXRay(post)}>Why am I seeing this? <span aria-hidden="true">↗</span></button>
+          </div>
           </>}
         </article>
       <aside ref={sidebar} aria-label="Recommendation analysis">
-        <RankingReplay key={s.round} queue={queue} onInspect={openXRay}/>
+        <RankingReplay key={s.round} queue={queue} session={s} onInspect={openXRay}/>
         <InterestProfile profile={profile} note={s.note} revision={s.revision} signalTopics={s.signalTopics}/>
       </aside>
       <div className="feed-settings"><FeedControls settings={s.settings} onChange={onChange} scope="feed"/></div>
@@ -150,8 +161,8 @@ function Workspace({initial}:{initial:Session}) {
       <div hidden={section!==3}><TimeMachine session={s}/></div>
     </main><span className="travel-signal" aria-hidden="true" ref={signal}/>
     <dialog aria-labelledby="help-title" ref={dialog} onClick={e=>{if(e.target===dialog.current)dialog.current?.close()}}><div className="dialog-head"><h2 id="help-title">How FeedLens works</h2><button aria-label="Close" onClick={()=>dialog.current?.close()}><Icon name="close"/></button></div>
-      <p>Tap <b>Like</b> on a post. Under <b>Up next</b>, switch between <b>Before</b> and <b>After</b> to compare the candidates. Choose <b>Why this winner?</b> to inspect the top score.</p>
-      <p><b>Watch</b> sends a signal each second. A dislike or a skip before three seconds lowers interest. Scroll down over the cover or swipe up to advance.</p>
+      <p>Tap <b>Like</b> on a photo story. Under <b>Up next</b>, compare <b>Before</b> and <b>After</b>. Choose a story to see how it earned its place.</p>
+      <p><b>Start timer</b> counts each second you spend on the photo as interest in its topic. A dislike or a skip before three seconds lowers interest. Swipe up on the photo or select <b>Next</b> to move on.</p>
       <p>Open <b>Algorithm Lab</b> to change how the feed learns and ranks. In <b>Time Machine</b>, branch from a past reaction to see how a different signal changes the rankings.</p></dialog>
   </>
 }
@@ -198,6 +209,11 @@ function App() {
       <PhoneExperiment onExplore={explore}><InstagramAnalyzer/></PhoneExperiment>
     </div>}
     {initial && <div id="workspace" hidden={!showWorkspace}><Workspace key={visit} initial={initial}/></div>}
+    <footer className="edition-credits"><details><summary>Edition photo credits</summary>
+      <p>Photographs are resized and may be cropped to fit the display.</p>
+      <ul>{posts.map(post => <li key={post.id}><a href={post.photoUrl} target="_blank" rel="noreferrer">{post.title}</a> · {post.photoCredit}
+        {' · '}{post.licenseUrl ? <a href={post.licenseUrl} target="_blank" rel="noreferrer">{post.photoLicense}</a> : post.photoLicense}</li>)}</ul>
+    </details></footer>
   </>
 }
 

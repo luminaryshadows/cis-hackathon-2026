@@ -9,7 +9,7 @@ FeedLens opens with the team’s animated phone, a scroll-through ranking experi
 
 ## The one-sentence pitch
 
-FeedLens lets you train a simulated short-video feed and trace how a watch, like, dislike, or skip changes your next recommendation.
+FeedLens lets you train a recommendation model on real photo stories and trace how a watch, like, dislike, or skip changes your next recommendation.
 
 ---
 
@@ -28,7 +28,7 @@ Recommendation feeds make it easy to react to a post and hard to see what the sy
 - **Interactive Feed (Your Feed)** — Watch, like, dislike, or skip simulated posts and see the interest profile and upcoming queue update.
 - **Algorithm X-Ray (Behind the Feed)** — Inspect a candidate's score, see its strongest contributing action, and adjust ranking weights.
 - **Time Machine** — Change or remove a past interaction in a saved branch and compare interest weights and upcoming rankings with the original.
-- **Experiment Lab (Algorithm Lab)** — Predict and test whether watch time can outweigh a dislike, how gaming likes create a feedback loop, and how exploration or diversity can change the top pick.
+- **Experiment Lab (Algorithm Lab)** — Predict and test whether watch time can outweigh a dislike, how likes on Earth stories create a feedback loop, and how exploration or diversity can change the top pick.
 
 On the opening page, scroll from one watch and dislike through the learned weights, candidate scores and resulting ranking. The optional **Instagram** section reads an export on the device and compares viewing with likes and saves. See the [algorithm guide](docs/ALGORITHM.md).
 
@@ -50,7 +50,7 @@ npm run dev
 # Open the URL printed by Vite, typically http://localhost:5173
 ```
 
-On the opening phone experiment, change the watch duration and follow the effect on Gaming interest. Choose **Explore feed** to inspect that session in the full workspace. **Reset session** restores a neutral profile there.
+On the opening phone experiment, change the watch duration and follow the effect on Earth interest. Choose **Explore feed** to inspect that session in the full workspace. **Reset session** restores a neutral profile there.
 
 Open `#instagram` and choose **Try example data** for a fictional report, or **Choose Instagram export** for your own data. Select one or more Instagram ZIPs or extracted activity files (`posts_viewed.json`, `videos_watched.json`, `liked_posts.json` and `saved_posts.json`, including numbered parts). The analyzer reports each available category and counts repeated activities. Creator lists use only records that name a creator. Missing categories are marked **Not included**. Clearing the report or reloading the page releases the results. [Instagram’s export guide](https://help.instagram.com/181231772500920)
 
@@ -64,7 +64,7 @@ Run `npm test` for the model tests and `npm run build` to produce the static sit
 index.html          browser entry point
 package.json        development, test, and build scripts
 src/                recommendation engine and four interactive sections
-public/art/         covers for the simulated post catalog
+public/photos/      credited photographs for the current edition
 tests/              engine, history, and experiment tests
 docs/ROADMAP.md     milestone checklist and demo criteria
 docs/ALGORITHM.md   scoring, learning, and simulation limits

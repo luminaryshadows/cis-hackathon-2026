@@ -1,6 +1,6 @@
 # FeedLens Recommendation Algorithm
 
-FeedLens ranks a fixed catalog of 32 simulated posts across eight topics. The browser recomputes the profile and rankings as the user interacts. The model starts with a weight of zero for every topic.
+FeedLens ranks a fixed catalog of 16 real photo stories across Earth, Cities, Space and Sport. The browser recomputes the profile and rankings as the user interacts. The model starts with a weight of zero for every topic.
 
 ## How actions change interests
 
@@ -24,7 +24,7 @@ Each unseen post gets the sum of four components. Slider values below are on a 0
 | Component | Calculation | Default slider |
 | --------- | ----------- | -------------: |
 | Interest match | (Main topic weight + ¼ × related topic weight, if present) × Personalization ÷ 100 | 75 |
-| Popularity | Fixed catalog discovery value × Popularity ÷ 100 | 100 |
+| Edition order | (1 − zero-based edition position ÷ edition size) × Edition order ÷ 100 | 100 |
 | Exploration | 2 ÷ (1 + times this main topic has appeared this round) × Exploration ÷ 100 | 25 |
 | Diversity | −4 × occurrences of this main topic among the last three shown posts × Content diversity ÷ 100 | 35 |
 
@@ -34,13 +34,13 @@ The highest total wins. Exact ties retain catalog order. The opening post is fix
 
 - **Algorithm X-Ray** shows the four score components and traces the recorded event with the largest absolute contribution to the candidate's interest-match score. For the current post, it can show both the saved selection score and a live rescore.
 - **Time Machine** edits one event in an alternate snapshot and replays both histories with the same settings and already-seen posts. It compares the resulting interests, scores, and upcoming ranks. Later actions stay as recorded.
-- **Experiment Lab** uses posts from the same catalog and sandbox histories to compute outcomes for watch time versus dislike, repeated gaming likes, and exploration and diversity. Its experiment inputs are isolated from the live feed. The separate live-feed controls affect the session.
+- **Experiment Lab** uses posts from the same catalog and sandbox histories to compute outcomes for watch time versus dislike, repeated likes on Earth stories, and exploration and diversity. Its experiment inputs are isolated from the live feed. The separate live-feed controls affect the session.
 
 In the separate prototype checkout, the calculations live in `src/engine.ts`, with session rules in `src/session.ts`, branch replay in `src/history.ts`, and sandbox scenarios in `src/experiments.ts`.
 
 ## Assumptions and limitations
 
-The catalog, topic tags, and popularity values are assigned in advance. The model treats watch time as positive evidence even when someone watches out of curiosity or disagreement. Interest weights accumulate without decay, so long histories can outweigh recent actions. Session history and saved branches are held in browser memory and cleared by reload. This is a simplified demonstration of a recommendation feedback loop whose scores describe this catalog and model.
+The edition starts by taking one story from each topic in turn. Each topic’s story order and tags are selected in advance. The model treats watch time as positive evidence even when someone watches out of curiosity or disagreement. Interest weights accumulate without decay, so long histories can outweigh recent actions. Session history and saved branches are held in browser memory and cleared by reload. This is a simplified demonstration of a recommendation feedback loop whose scores describe this catalog and model.
 
 ## Proposed improvements
 

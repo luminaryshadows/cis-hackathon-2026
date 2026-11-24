@@ -4,7 +4,7 @@ import {posts} from '../src/catalog.ts'
 
 const dataURL = async (path,type) => 'data:'+type+';base64,'+(await readFile(path)).toString('base64')
 const covers = Object.fromEntries(await Promise.all(posts.map(async post =>
-  [post.id,await dataURL('public/art/'+post.id+'.webp','image/webp')])))
+  [post.id,await dataURL('public/photos/'+post.id+'.webp','image/webp')])))
 const logo = await dataURL('public/lens.svg','image/svg+xml')
 const notices = await Promise.all(['dm-sans', 'stix-two', 'zip-js'].map(name =>
   readFile('public/licenses/'+name+'.txt','utf8')))

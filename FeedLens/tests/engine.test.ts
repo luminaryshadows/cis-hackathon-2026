@@ -23,27 +23,27 @@ test('the live watch/dislike comparison counts this visit and reweights both sig
   const balance = watchDislikeBalance(s)!
   assert.equal(balance.penalty,-4)
   assert.ok(Math.abs(balance.watch - 4.2) < 1e-10)
-  assert.ok(Math.abs(balance.net - replay(s.events,s.settings).Gaming) < 1e-10)
+  assert.ok(Math.abs(balance.net - replay(s.events,s.settings).Earth) < 1e-10)
   assert.equal(watchDislikeBalance(update(s,{type:'setting',key:'watchTime',value:0}))!.net,-4)
   assert.equal(watchDislikeBalance(update(s,{type:'dislike'})),null)
   assert.equal(watchDislikeBalance(update(s,{type:'next'})),null)
 })
 
 test('balanced starting shares, signed learning, and finite shares in long sessions',()=>{
-  assert.deepEqual(shares(neutral()),topics.map(()=>12.5))
+  assert.deepEqual(shares(neutral()),topics.map(()=>100 / topics.length))
   assert.deepEqual(learn(learn(neutral(),first,4),first,-4),neutral())
   const profile=learn(neutral(),first,4)
-  assert.ok(shares(profile)[0]>12.5)
+  assert.ok(shares(profile)[0]>100 / topics.length)
   assert.equal(shares(profile).reduce((a,b)=>a+Math.round(b*10),0),1000)
   assert.equal(shares(learn(neutral(),first,100000))[0],100)
 })
 
 test('three learning controls independently reweight original events and replay deterministically',()=>{
   const original=[like,watch]
-  assert.equal(replay(original,defaults).Gaming,5.4)
-  assert.equal(replay(original,{...defaults,watchTime:0}).Gaming,4)
-  assert.equal(replay(original,{...defaults,explicitFeedback:0}).Gaming,1.4)
-  assert.equal(replay(original,{...defaults,learningSpeed:100}).Gaming,10.8)
+  assert.equal(replay(original,defaults).Earth,5.4)
+  assert.equal(replay(original,{...defaults,watchTime:0}).Earth,4)
+  assert.equal(replay(original,{...defaults,explicitFeedback:0}).Earth,1.4)
+  assert.equal(replay(original,{...defaults,learningSpeed:100}).Earth,10.8)
   assert.deepEqual(replay(original,{...defaults,learningSpeed:0}),neutral())
   assert.deepEqual(replay(original,defaults),replay(structuredClone(original),defaults))
   assert.deepEqual(original,[like,watch])
@@ -54,17 +54,17 @@ test('ranking components explain the actual order, and each ranking control affe
   const ranked=rank(profile,[first],defaults)
   assert.equal(ranked.length,posts.length-1)
   assert.ok(ranked.every((r,i)=>r.total===Object.values(r.parts).reduce((a,b)=>a+b,0) && (!i||ranked[i-1].total>=r.total)))
-  const arcade=ranked.find(r=>r.post.id==='arcade')!
-  assert.equal(arcade.parts.relevance,[like,watch].reduce((sum,e)=>sum+eventContribution(arcade.post,e,defaults),0))
+  const cyclone=ranked.find(r=>r.post.id==='cyclone-xavier')!
+  assert.equal(cyclone.parts.relevance,[like,watch].reduce((sum,e)=>sum+eventContribution(cyclone.post,e,defaults),0))
   for(const [slider,term] of [['personalization','relevance'],['exploration','exploration'],['diversity','diversity'],['popularity','popularity']] as const) {
-    const changed=rank(profile,[first],{...defaults,[slider]:0}).find(r=>r.post===arcade.post)!
-    assert.ok(arcade.parts[term]!==0 && changed.parts[term]===0)
-    assert.ok(changed.total!==arcade.total)
+    const changed=rank(profile,[first],{...defaults,[slider]:0}).find(r=>r.post===cyclone.post)!
+    assert.ok(cyclone.parts[term]!==0 && changed.parts[term]===0)
+    assert.ok(changed.total!==cyclone.total)
   }
-  assert.equal(rank(neutral(),[first],defaults)[0].post.topic,'Music')
-  assert.equal(rank(replay([like],defaults),[first],defaults)[0].post.related,'Gaming')
-  assert.equal(rank(replay([like],defaults),[first],{...defaults,diversity:0})[0].post.topic,'Gaming')
-  assert.notEqual(rank(replay([like],defaults),[first],{...defaults,diversity:100})[0].post.topic,'Gaming')
+  assert.equal(rank(neutral(),[first],defaults)[0].post.topic,'Cities')
+  assert.equal(rank(replay([like],defaults),[first],defaults)[0].post.related,'Earth')
+  assert.equal(rank(replay([like],defaults),[first],{...defaults,diversity:0})[0].post.topic,'Earth')
+  assert.notEqual(rank(replay([like],defaults),[first],{...defaults,diversity:100})[0].post.topic,'Earth')
 })
 
 test('watch segments aggregate, pause stops learning, explicit reactions replace or undo, skips count once',()=>{
@@ -89,7 +89,7 @@ test('watch segments aggregate, pause stops learning, explicit reactions replace
 test('removing individual events replays the rest and tuning leaves the current post in place',()=>{
   const liked=update(playFor(fresh(),2),{type:'like'})
   const removed=update(liked,{type:'remove',id:liked.events[0].id})
-  assert.equal(replay(removed.events,removed.settings).Gaming,4)
+  assert.equal(replay(removed.events,removed.settings).Earth,4)
   const tuned=update(removed,{type:'setting',key:'explicitFeedback',value:0})
   assert.deepEqual(replay(tuned.events,tuned.settings),neutral())
   assert.equal(currentPost(tuned),first)
@@ -97,7 +97,7 @@ test('removing individual events replays the rest and tuning leaves the current 
   assert.deepEqual(update(tuned,{type:'reset'}),fresh())
 })
 
-test('all 32 posts occur once per round; new round preserves learning and restarts reaction state',()=>{
+test('all edition stories occur once per round; new round preserves learning and restarts reaction state',()=>{
   let s=fresh()
   for(let i=0;i<posts.length;i++){
     assert.equal(s.done,false)
@@ -107,7 +107,7 @@ test('all 32 posts occur once per round; new round preserves learning and restar
   }
   assert.equal(s.done,true)
   assert.equal(s.events.length,posts.length)
-  assert.equal(new Set(s.seen.map(p=>p.id)).size,32)
+  assert.equal(new Set(s.seen.map(p=>p.id)).size,posts.length)
   assert.deepEqual(rank(replay(s.events,s.settings),s.seen,s.settings),[])
   const next=update(s,{type:'round'})
   assert.equal(next.seen.length,1)
