@@ -3,7 +3,7 @@
 **FeedLens** is our entry for the **CIS Hackathon**, released 19 November 2026.
 Submissions close **25 November 2026, 23:59 AoE**.
 
-The `feedlens-demo` branch contains the working app in [FeedLens](FeedLens/) and the hackathon [brief](BRIEF.md).
+[Open the live FeedLens demo](https://luminaryshadows.github.io/cis-hackathon-2026/). The `main` branch contains the working app in [FeedLens](FeedLens/) and the hackathon [brief](BRIEF.md).
 
 ## Try the branch demo
 
