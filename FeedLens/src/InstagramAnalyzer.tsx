@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react'
 import type {InstagramActivityKind, InstagramSummary} from './instagram'
-import {analyzeInstagramFiles} from './instagramImport'
+import {analyzeInstagramFilesInWorker} from './instagramImportWorker'
 import './instagram-analyzer.css'
 
 const categories: [InstagramActivityKind, string][] = [
@@ -106,7 +106,7 @@ export function InstagramAnalyzer() {
     current.current = controller
     setState({type: 'reading'})
     try {
-      const summary = await analyzeInstagramFiles(files, controller.signal)
+      const summary = await analyzeInstagramFilesInWorker(files, controller.signal)
       if (!controller.signal.aborted) {
         setState(summary.filesRead ? {type: 'ready', summary, example} : {
           type: 'error', message: 'The activity files could not be recognized. Choose the original JSON files from your Instagram export.',

@@ -2,6 +2,7 @@ import {expect, test} from '@playwright/test'
 import {resolve} from 'node:path'
 import {pathToFileURL} from 'node:url'
 import {BlobWriter, TextReader, ZipWriter} from '@zip.js/zip.js/lib/zip-core-native.js'
+import type {ImportFile} from '../../src/instagramImport.worker'
 
 function jsonFile(name: string, rows: unknown) {
   return {name, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(rows))}
@@ -87,14 +88,23 @@ test('a compressed export opens in the standalone file offline and only its acti
   expect(errors).toEqual([])
 })
 
-test('replacing a pending file read keeps the latest report', async ({page}) => {
+test('canceling and replacing a pending import terminate its worker', async ({page}) => {
   await page.addInitScript(() => {
-    const readText = File.prototype.text
-    File.prototype.text = async function () {
-      if (this.name === 'liked_posts_9.json') {
-        await new Promise<void>(resolve => window.addEventListener('finish-file-read', () => resolve(), {once: true}))
+    let terminatedPendingWorkers = 0
+    window.Worker = class extends Worker {
+      pendingImport = false
+
+      postMessage(files: ImportFile[]) {
+        this.pendingImport = files[0]?.file.name === 'liked_posts_9.json'
+        if (!this.pendingImport) super.postMessage(files)
       }
-      return readText.call(this)
+
+      terminate() {
+        if (this.pendingImport) {
+          document.documentElement.dataset.terminatedImports = String(++terminatedPendingWorkers)
+        }
+        super.terminate()
+      }
     }
   })
   await page.goto('/#instagram')
@@ -104,15 +114,13 @@ test('replacing a pending file read keeps the latest report', async ({page}) => 
   await page.getByRole('button', {name: 'Cancel'}).click()
   await expect(picker).toBeFocused()
   await expect(page.getByRole('button', {name: 'Cancel'})).toHaveCount(0)
+  await expect(page.locator('html')).toHaveAttribute('data-terminated-imports', '1')
   await picker.setInputFiles(jsonFile('liked_posts_9.json', {likes_media_likes: [event]}))
   await expect(page.getByRole('button', {name: 'Cancel'})).toBeVisible()
   await page.getByRole('button', {name: 'Try example data'}).click()
   const report = page.getByRole('region', {name: 'Example activity'})
   await expect(report).toBeVisible()
-  await page.evaluate(async () => {
-    dispatchEvent(new Event('finish-file-read'))
-    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
-  })
+  await expect(page.locator('html')).toHaveAttribute('data-terminated-imports', '2')
   await expect(report.locator('dd')).toHaveText(['6', '3', '3', '1'])
   await expect(page.getByRole('region', {name: 'Your activity'})).toHaveCount(0)
 })

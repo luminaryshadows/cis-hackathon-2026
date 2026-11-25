@@ -13,7 +13,7 @@ Choose **Instagram** to compare the accounts in your own viewing history with th
 
 **Explore feed** opens the full workspace with that watch and dislike already in its history. The original feed, X-Ray, experiments and Time Machine also have direct links at `#feed`, `#behind`, `#lab` and `#history`.
 
-Run the branch locally with the commands below, or download **FeedLens-preview** from a successful [branch check](https://github.com/luminaryshadows/cis-hackathon-2026/actions/workflows/feedlens.yml?query=branch%3Afeedlens-demo), unzip it and open `FeedLens.html`. The [original public prototype](https://yg-gms.github.io/feedlens-demo/) is the earlier build.
+Run the branch locally with the commands below, or download **FeedLens-preview** from a successful [main-branch push](https://github.com/luminaryshadows/cis-hackathon-2026/actions/workflows/feedlens.yml?query=branch%3Amain+event%3Apush), unzip it and open `FeedLens.html`. The [original public prototype](https://yg-gms.github.io/feedlens-demo/) is the earlier build.
 
 ---
 
