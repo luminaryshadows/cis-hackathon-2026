@@ -36,7 +36,10 @@ test('an incomplete export distinguishes missing categories, empty files and inv
   await page.goto('/#instagram')
   await page.evaluate(() => document.fonts.ready)
   const requests: string[] = []
-  page.on('request', request => requests.push(request.url()))
+  const workerOrigin = 'blob:' + new URL(page.url()).origin + '/'
+  context.on('request', request => {
+    if (!request.url().startsWith(workerOrigin)) requests.push(request.url())
+  })
   page.on('websocket', socket => requests.push(socket.url()))
   const picker = page.getByLabel('Choose Instagram export')
   await picker.setInputFiles(jsonFile('message_1.json', {message: 'unrelated'}))
