@@ -19,8 +19,7 @@ Run the branch locally with the commands below, or download **FeedLens-preview**
 
 ## The one-sentence pitch
 
-FeedLens lets you train a recommendation model on real photo stories and trace how a watch, like, dislike or skip
-changes your next recommendation.
+FeedLens enables users to understand the underlying algorithms that keep them scrolling while watching short-form content.
 
 ---
 
